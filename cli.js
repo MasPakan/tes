@@ -5,17 +5,21 @@ const path = require('path');
 
 class DiscordSelfbotCLI {
     constructor() {
-        this.configDir = path.join(__dirname, 'configs');
-        this.configFile = path.join(this.configDir, 'accounts.json');
-        this.ensureConfigDir();
+        this.configFile = path.join(__dirname, 'ihannsy.json');
+        this.ensureConfigFile();
     }
 
-    ensureConfigDir() {
-        if (!fs.existsSync(this.configDir)) {
-            fs.mkdirSync(this.configDir, { recursive: true });
-        }
+    ensureConfigFile() {
         if (!fs.existsSync(this.configFile)) {
-            fs.writeFileSync(this.configFile, JSON.stringify({}, null, 2));
+            const defaultConfig = {
+                accounts: {},
+                settings: {
+                    defaultPrefix: '!',
+                    defaultRPC: true,
+                    defaultWebhook: false
+                }
+            };
+            fs.writeFileSync(this.configFile, JSON.stringify(defaultConfig, null, 2));
         }
     }
 
