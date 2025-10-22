@@ -2,11 +2,15 @@ const { Client, RichPresence } = require('discord.js-selfbot-v13');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const DiscordSelfbotCLI = require('./cli');
 
-// Configuration
-const config = {
-    token: process.env.DISCORD_TOKEN || 'YOUR_USER_TOKEN_HERE', // Replace with your user token
-    webhookUrl: process.env.WEBHOOK_URL || 'YOUR_WEBHOOK_URL_HERE', // Replace with your webhook URL
+// Configuration will be loaded from CLI
+let config = {
+    token: '',
+    webhookUrl: '',
+    prefix: '!',
+    enableRPC: true,
+    username: 'Unknown User',
     applicationId: "1396351851410227292"
 };
 
@@ -211,12 +215,18 @@ client.on('messageCreate', async (message) => {
 
     const args = message.content.trim().split(/\s+/);
     const command = args[0].toLowerCase();
+    
+    // Check if message starts with configured prefix
+    if (!command.startsWith(config.prefix)) return;
+    
+    // Remove prefix from command
+    const actualCommand = command.substring(config.prefix.length);
 
     try {
-        switch (command) {
-            case '!post':
+        switch (actualCommand) {
+            case 'post':
                 if (args.length < 4) {
-                    await message.edit('Usage: !post <index> <message> <delay> <channel_id>\n\n**Note:** Attach files to your command message to include them in auto posts!');
+                    await message.edit(`Usage: ${config.prefix}post <index> <message> <delay> <channel_id>\n\n**Note:** Attach files to your command message to include them in auto posts!`);
                     return;
                 }
 
@@ -254,7 +264,7 @@ client.on('messageCreate', async (message) => {
                 await message.edit(`✅ Auto post [${index}] started in <#${channelId}> with ${delay}s delay${attachmentInfo}`);
                 break;
 
-            case '!index':
+            case 'index':
                 if (autoPosts.size === 0) {
                     await message.edit('No active auto posts');
                     return;
@@ -270,7 +280,7 @@ client.on('messageCreate', async (message) => {
                 await message.edit(indexList);
                 break;
 
-            case '!stop':
+            case 'stop':
                 if (args.length === 1) {
                     stopAutoPost('all');
                     await message.edit('🛑 All auto posts stopped');
@@ -285,13 +295,13 @@ client.on('messageCreate', async (message) => {
                 }
                 break;
 
-            case '!ping':
+            case 'ping':
                 const latency = client.ws.ping;
                 const apiLatency = Date.now() - message.createdTimestamp;
                 await message.edit(`🏓 **Pong!**\nBot Latency: ${latency}ms\nAPI Latency: ${apiLatency}ms`);
                 break;
 
-            case '!help':
+            case 'help':
                 const helpEmbed = {
                     title: "🤖 **PAKAN STORE AUTOPOST BOT**",
                     description: "Selfbot automation untuk auto posting dengan fitur lengkap",
@@ -299,12 +309,12 @@ client.on('messageCreate', async (message) => {
                     fields: [
                         {
                             name: "📝 **Auto Post Commands**",
-                            value: "`!post <index> <message> <delay> <channel_id>`\nStart auto posting dengan delay custom\n**Attach files to your command message to include them!**",
+                            value: `\`${config.prefix}post <index> <message> <delay> <channel_id>\`\nStart auto posting dengan delay custom\n**Attach files to your command message to include them!**`,
                             inline: false
                         },
                         {
                             name: "📋 **Management Commands**",
-                            value: "`!index` - List semua autopost aktif\n`!stop <index>` - Hentikan autopost spesifik\n`!stop` - Hentikan semua autopost\n`!ping` - Cek latency bot\n`!help` - Tampilkan manual ini",
+                            value: `\`${config.prefix}index\` - List semua autopost aktif\n\`${config.prefix}stop <index>\` - Hentikan autopost spesifik\n\`${config.prefix}stop\` - Hentikan semua autopost\n\`${config.prefix}ping\` - Cek latency bot\n\`${config.prefix}help\` - Tampilkan manual ini`,
                             inline: false
                         },
                         {
@@ -343,6 +353,11 @@ client.on('messageCreate', async (message) => {
 
 // Set up Rich Presence
 function setupRichPresence() {
+    if (!config.enableRPC) {
+        console.log('ℹ️  Rich Presence disabled in configuration');
+        return;
+    }
+
     try {
         const rpc = new RichPresence(client)
             .setApplicationId(config.applicationId)
@@ -368,8 +383,12 @@ function setupRichPresence() {
 // Event handlers
 client.on('ready', () => {
     console.log(`✅ Logged in as ${client.user.tag} (${client.user.id})`);
+    console.log(`👤 Account: ${config.username}`);
+    console.log(`🔧 Prefix: ${config.prefix}`);
     console.log(`📊 Guilds: ${client.guilds.cache.size}`);
     console.log(`📺 Channels: ${client.channels.cache.size}`);
+    console.log(`🌐 Webhook: ${config.webhookUrl ? 'Enabled' : 'Disabled'}`);
+    console.log(`🎮 RPC: ${config.enableRPC ? 'Enabled' : 'Disabled'}`);
     
     setupRichPresence();
     sendWebhookLog("Bot Started", null, "Selfbot started successfully");
@@ -399,13 +418,34 @@ process.on('SIGTERM', () => {
     process.exit(0);
 });
 
-// Login
-if (config.token === 'YOUR_USER_TOKEN_HERE') {
-    console.error('❌ Please set your Discord user token in the config or environment variable DISCORD_TOKEN');
-    process.exit(1);
+// Main function
+async function main() {
+    const cli = new DiscordSelfbotCLI();
+    const result = await cli.start();
+    
+    if (result.action === 'start') {
+        // Load configuration from CLI result
+        config = { ...config, ...result.config };
+        
+        // Validate configuration
+        if (!config.token) {
+            console.error('❌ No token provided');
+            process.exit(1);
+        }
+        
+        // Start the bot
+        try {
+            await client.login(config.token);
+        } catch (error) {
+            console.error('❌ Login failed:', error.message);
+            console.log('\n🔄 Returning to main menu...');
+            setTimeout(() => main(), 2000);
+        }
+    }
 }
 
-client.login(config.token).catch(error => {
-    console.error('❌ Login failed:', error.message);
+// Start the application
+main().catch(error => {
+    console.error('❌ Fatal error:', error.message);
     process.exit(1);
 });

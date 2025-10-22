@@ -15,107 +15,144 @@ Script selfbot Discord menggunakan `discord.js-selfbot-v13` dengan fitur auto po
 npm install
 ```
 
-2. **Setup konfigurasi:**
-   - Copy `.env.example` ke `.env`
-   - Isi `DISCORD_TOKEN` dengan user token Anda
-   - Isi `WEBHOOK_URL` dengan webhook URL (opsional)
-
-3. **Jalankan script:**
+2. **Jalankan script:**
 ```bash
 npm start
 ```
 
+3. **Ikuti panduan CLI interaktif:**
+   - Input Discord user token
+   - Pilih enable/disable webhook
+   - Input webhook URL (jika enable)
+   - Set custom prefix (default: !)
+   - Pilih enable/disable RPC
+   - Start bot
+
 ## 📋 Fitur
 
-### 1. Auto Posting System
-- **Command:** `!post <index> <message> <delay> <channel_id>`
+### 1. 🖥️ Interactive CLI System
+- **Multi-account management** - Simpan dan kelola multiple Discord accounts
+- **Configuration wizard** - Setup mudah dengan panduan step-by-step
+- **Account selection menu** - Pilih akun yang sudah tersimpan
+- **Configuration management** - Update config tanpa menghapus akun
+
+### 2. Auto Posting System
+- **Command:** `{prefix}post <index> <message> <delay> <channel_id>`
 - Multi channel posting
 - Custom delay per channel
 - **Easy file attachment** (just attach files to your command message!)
 - Error handling robust
 
-### 2. Management Commands
-- `!index` - List semua autopost aktif
-- `!stop <index>` - Hentikan autopost spesifik
-- `!stop` - Hentikan semua autopost
-- `!ping` - Cek latency bot & API
-- `!help` - Manual penggunaan detail
+### 3. Management Commands
+- `{prefix}index` - List semua autopost aktif
+- `{prefix}stop <index>` - Hentikan autopost spesifik
+- `{prefix}stop` - Hentikan semua autopost
+- `{prefix}ping` - Cek latency bot & API
+- `{prefix}help` - Manual penggunaan detail
 
-### 3. Rich Presence
+### 4. Rich Presence (Optional)
 - Custom RPC dengan format yang diminta
 - Status "Do Not Disturb"
 - Assets dan buttons custom
+- **Dapat di-disable** melalui CLI
 
-### 4. Webhook Logger
+### 5. Webhook Logger (Optional)
 - Logging otomatis ke webhook
 - Format sesuai spesifikasi
 - Error tracking
 - Status monitoring
+- **Dapat di-disable** melalui CLI
 
 ## 📖 Cara Penggunaan
 
-### Auto Posting
+### 🖥️ CLI Interface
+
+**First Time Setup:**
+1. Jalankan `npm start`
+2. Pilih "New Account"
+3. Input Discord user token
+4. Pilih enable/disable webhook
+5. Input webhook URL (jika enable)
+6. Set custom prefix (default: !)
+7. Pilih enable/disable RPC
+8. Start bot
+
+**Returning User:**
+1. Jalankan `npm start`
+2. Pilih akun dari daftar yang tersimpan
+3. Pilih "Start Bot" atau "New Config"
+
+### 🤖 Bot Commands
+
+**Auto Posting:**
 ```
-!post 1 "Promo special hari ini! 🎉" 30 123456789012345678
+{prefix}post 1 "Promo special hari ini! 🎉" 30 123456789012345678
 ```
 - `1` = Index autopost
 - `"Promo special hari ini! 🎉"` = Pesan
 - `30` = Delay 30 detik
 - `123456789012345678` = Channel ID
 
-### Dengan Attachment
+**Dengan Attachment:**
 ```
-!post 2 "Check this out!" 60 123456789012345678
+{prefix}post 2 "Check this out!" 60 123456789012345678
 [Attach files to this message - image.png, video.mp4, etc.]
 ```
 
-### Management
+**Management:**
 ```
-!index          # Lihat semua autopost aktif
-!stop 1         # Hentikan autopost index 1
-!stop           # Hentikan semua autopost
-!ping           # Cek latency
-!help           # Manual lengkap
+{prefix}index          # Lihat semua autopost aktif
+{prefix}stop 1         # Hentikan autopost index 1
+{prefix}stop           # Hentikan semua autopost
+{prefix}ping           # Cek latency
+{prefix}help           # Manual lengkap
 ```
 
 ## 🔧 Konfigurasi
 
-### Environment Variables
-- `DISCORD_TOKEN`: User token Discord Anda
-- `WEBHOOK_URL`: URL webhook untuk logging (opsional)
+### CLI Configuration
+- **Interactive setup** - Tidak perlu edit file manual
+- **Multi-account support** - Kelola multiple Discord accounts
+- **Configuration persistence** - Settings tersimpan otomatis
+- **Easy reconfiguration** - Update settings kapan saja
 
 ### File Attachments
-- **Cara mudah**: Attach files langsung ke pesan command `!post`
+- **Cara mudah**: Attach files langsung ke pesan command `{prefix}post`
 - File akan otomatis terdeteksi dan disertakan dalam auto post
 - Support semua jenis file (gambar, video, dokumen, dll)
 - Tidak perlu path file atau upload manual
 
-### Rich Presence
-Edit di `index.js` bagian `setupRichPresence()`:
-- Application ID
-- Assets URLs
-- Button URLs
-- Status text
+### Account Management
+- **Save accounts** - Token dan config tersimpan aman
+- **Switch accounts** - Ganti akun dengan mudah
+- **Remove accounts** - Hapus akun yang tidak digunakan
+- **Reconfigure** - Update settings tanpa menghapus akun
 
 ## 📁 Struktur File
 ```
 /workspace/
 ├── index.js           # Script utama
+├── cli.js             # CLI interactive system
 ├── package.json       # Dependencies
-├── .env.example       # Template konfigurasi
+├── configs/           # Configuration storage
+│   └── accounts.json  # Saved accounts & configs
 └── README.md          # Dokumentasi
 ```
 
 ## ⚡ Dependencies
 - `discord.js-selfbot-v13`: Library selfbot utama
+- `inquirer`: CLI interactive prompts
+- `chalk`: Terminal colors & styling
 - Node.js built-in modules: `https`, `fs`, `path`
 
 ## 🛡️ Error Handling
-- Validasi input command
-- Error logging ke webhook
-- Graceful shutdown
-- Connection error handling
-- File attachment validation
+- **CLI validation** - Input validation di setiap step
+- **Token validation** - Cek token sebelum login
+- **Command validation** - Validasi input command
+- **Error logging** - Logging ke webhook (jika enable)
+- **Graceful shutdown** - Clean exit dengan cleanup
+- **Connection handling** - Auto retry pada connection error
+- **File validation** - Validasi attachment files
 
 ## 📝 Log Format
 Webhook mengirim log dengan format:
