@@ -1,0 +1,15 @@
+{
+  "name": "discord-selfbot-automation",
+  "version": "1.0.0",
+  "description": "Discord selfbot with auto posting, RPC, and webhook logging features",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js-selfbot-v13": "^3.0.1"
+  },
+  "keywords": ["discord", "selfbot", "automation"],
+  "author": "iHannsy",
+  "license": "MIT"
+}
