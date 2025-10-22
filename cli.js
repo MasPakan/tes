@@ -114,7 +114,8 @@ class DiscordSelfbotCLI {
     async showAccountMenu(username, account) {
         const choices = [
             { name: `${chalk.green('🚀')} Start Bot`, value: 'start' },
-            { name: `${chalk.blue('⚙️')} New Config`, value: 'config' }
+            { name: `${chalk.blue('⚙️')} New Config`, value: 'config' },
+            { name: `${chalk.red('🗑️')} Remove Account`, value: 'remove' }
         ];
 
         const { action } = await inquirer.prompt([{
@@ -129,6 +130,8 @@ class DiscordSelfbotCLI {
                 return { action: 'start', config: account };
             case 'config':
                 return await this.showNewAccountFlow(username);
+            case 'remove':
+                return await this.removeAccount(username);
         }
     }
 
