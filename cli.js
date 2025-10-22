@@ -2,10 +2,12 @@ const inquirer = require('inquirer');
 const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
+const UpdateManager = require('./update');
 
 class DiscordSelfbotCLI {
     constructor() {
         this.configFile = path.join(__dirname, 'ihannsy.json');
+        this.updateManager = new UpdateManager();
         this.ensureConfigFile();
     }
 
@@ -49,6 +51,75 @@ class DiscordSelfbotCLI {
 ╚══════════════════════════════════════════════════════════════╝
         `));
         console.log(chalk.yellow('⚠️  Warning: Using selfbots violates Discord ToS. Use at your own risk!\n'));
+        
+        // Check for updates
+        await this.checkForUpdates();
+    }
+
+    async checkForUpdates() {
+        try {
+            console.log(chalk.blue('🔍 Checking for updates...'));
+            const updateInfo = await this.updateManager.checkForUpdates();
+            
+            if (updateInfo.hasUpdate) {
+                console.log(chalk.green(`\n🎉 Update available!`));
+                console.log(chalk.yellow(`   Current version: ${updateInfo.currentVersion}`));
+                console.log(chalk.green(`   Latest version: ${updateInfo.latestVersion}`));
+                
+                if (updateInfo.release) {
+                    console.log(chalk.cyan(`   Release notes: ${updateInfo.release.body || 'No release notes available'}`));
+                }
+                
+                const { shouldUpdate } = await inquirer.prompt([{
+                    type: 'confirm',
+                    name: 'shouldUpdate',
+                    message: 'Would you like to update now?',
+                    default: true
+                }]);
+                
+                if (shouldUpdate) {
+                    await this.performUpdate(updateInfo);
+                } else {
+                    console.log(chalk.yellow('⏭️  Skipping update. You can update later by running the script again.'));
+                }
+            } else {
+                console.log(chalk.green('✅ You are running the latest version!'));
+            }
+            
+            console.log(''); // Empty line for spacing
+        } catch (error) {
+            console.log(chalk.yellow('⚠️  Could not check for updates. Continuing...'));
+            console.log('');
+        }
+    }
+
+    async performUpdate(updateInfo) {
+        try {
+            console.log(chalk.blue('🔄 Updating script...'));
+            
+            const success = await this.updateManager.performUpdate();
+            
+            if (success) {
+                console.log(chalk.green('✅ Update completed successfully!'));
+                console.log(chalk.yellow('🔄 Please restart the script to apply changes.'));
+                
+                const { restartNow } = await inquirer.prompt([{
+                    type: 'confirm',
+                    name: 'restartNow',
+                    message: 'Would you like to restart the script now?',
+                    default: true
+                }]);
+                
+                if (restartNow) {
+                    console.log(chalk.blue('🔄 Restarting...'));
+                    process.exit(0); // Exit to allow restart
+                }
+            } else {
+                console.log(chalk.red('❌ Update failed. Please try again later.'));
+            }
+        } catch (error) {
+            console.log(chalk.red('❌ Update error:', error.message));
+        }
     }
 
     async showMainMenu() {
@@ -65,6 +136,7 @@ class DiscordSelfbotCLI {
                 value: username
             })),
             { name: `${chalk.blue('➕')} New Account`, value: 'new' },
+            { name: `${chalk.yellow('🔄')} Update Script`, value: 'update' },
             { name: `${chalk.red('❌')} Quit`, value: 'quit' }
         ];
 
@@ -83,6 +155,10 @@ class DiscordSelfbotCLI {
 
         if (action === 'new') {
             return await this.showNewAccountFlow();
+        }
+
+        if (action === 'update') {
+            return await this.showUpdateMenu();
         }
 
         return await this.showAccountMenu(action, accounts[action]);
@@ -261,6 +337,58 @@ class DiscordSelfbotCLI {
     async start() {
         await this.showWelcome();
         return await this.showMainMenu();
+    }
+
+    async showUpdateMenu() {
+        const choices = [
+            { name: `${chalk.blue('🔍')} Check for Updates`, value: 'check' },
+            { name: `${chalk.green('⬆️')} Force Update`, value: 'force' },
+            { name: `${chalk.gray('⬅️')} Back to Main Menu`, value: 'back' }
+        ];
+
+        const { action } = await inquirer.prompt([{
+            type: 'list',
+            name: 'action',
+            message: 'Update Management:',
+            choices
+        }]);
+
+        switch (action) {
+            case 'check':
+                await this.checkForUpdates();
+                return await this.showMainMenu();
+            case 'force':
+                await this.performUpdate({ hasUpdate: true });
+                return await this.showMainMenu();
+            case 'back':
+                return await this.showMainMenu();
+        }
+    }
+
+    async showUpdateMenu() {
+        const choices = [
+            { name: `${chalk.blue('🔍')} Check for Updates`, value: 'check' },
+            { name: `${chalk.green('⬆️')} Force Update`, value: 'force' },
+            { name: `${chalk.gray('⬅️')} Back to Main Menu`, value: 'back' }
+        ];
+
+        const { action } = await inquirer.prompt([{
+            type: 'list',
+            name: 'action',
+            message: 'Update Management:',
+            choices
+        }]);
+
+        switch (action) {
+            case 'check':
+                await this.checkForUpdates();
+                return await this.showMainMenu();
+            case 'force':
+                await this.performUpdate({ hasUpdate: true });
+                return await this.showMainMenu();
+            case 'back':
+                return await this.showMainMenu();
+        }
     }
 }
 

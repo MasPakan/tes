@@ -21,6 +21,7 @@ npm start
 ```
 
 3. **Ikuti panduan CLI interaktif:**
+   - **Auto update check** - Script otomatis cek update
    - Input Discord user token
    - Pilih enable/disable webhook
    - Input webhook URL (jika enable)
@@ -35,6 +36,7 @@ npm start
 - **Configuration wizard** - Setup mudah dengan panduan step-by-step
 - **Account selection menu** - Pilih akun yang sudah tersimpan
 - **Configuration management** - Update config tanpa menghapus akun
+- **Auto update system** - Cek dan update script otomatis
 
 ### 2. Auto Posting System
 - **Command:** `{prefix}post <index> <message> <delay> <channel_id>`
@@ -113,8 +115,9 @@ npm start
 ### CLI Configuration
 - **Interactive setup** - Tidak perlu edit file manual
 - **Multi-account support** - Kelola multiple Discord accounts
-- **Configuration persistence** - Settings tersimpan otomatis
+- **Configuration persistence** - Settings tersimpan di `ihannsy.json`
 - **Easy reconfiguration** - Update settings kapan saja
+- **Auto update checking** - Cek update otomatis saat startup
 
 ### File Attachments
 - **Cara mudah**: Attach files langsung ke pesan command `{prefix}post`
@@ -133,9 +136,9 @@ npm start
 /workspace/
 ├── index.js           # Script utama
 ├── cli.js             # CLI interactive system
-├── package.json       # Dependencies
-├── configs/           # Configuration storage
-│   └── accounts.json  # Saved accounts & configs
+├── update.js          # Update management system
+├── package.json       # Dependencies & version info
+├── ihannsy.json       # Configuration storage (auto-created)
 └── README.md          # Dokumentasi
 ```
 
@@ -143,7 +146,7 @@ npm start
 - `discord.js-selfbot-v13`: Library selfbot utama
 - `inquirer`: CLI interactive prompts
 - `chalk`: Terminal colors & styling
-- Node.js built-in modules: `https`, `fs`, `path`
+- Node.js built-in modules: `https`, `fs`, `path`, `child_process`
 
 ## 🛡️ Error Handling
 - **CLI validation** - Input validation di setiap step

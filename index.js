@@ -14,6 +14,21 @@ let config = {
     applicationId: "1396351851410227292"
 };
 
+// Load configuration from ihannsy.json
+function loadConfig() {
+    try {
+        const configFile = path.join(__dirname, 'ihannsy.json');
+        if (fs.existsSync(configFile)) {
+            const data = fs.readFileSync(configFile, 'utf8');
+            const ihannsyConfig = JSON.parse(data);
+            return ihannsyConfig;
+        }
+    } catch (error) {
+        console.error('❌ Error loading configuration:', error.message);
+    }
+    return null;
+}
+
 // Initialize client
 const client = new Client({
     checkUpdate: false,
