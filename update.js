@@ -7,13 +7,18 @@ class UpdateManager {
     constructor() {
         this.packageJson = require('./package.json');
         this.currentVersion = this.packageJson.version;
-        this.updateUrl = this.packageJson.updateUrl;
+        this.updateUrl = this.packageJson.updateUrl || 'https://api.github.com/repos/ihannsy/discord-selfbot-automation/releases/latest';
     }
 
     async checkForUpdates() {
         try {
+            // Check if update URL is configured
+            if (!this.updateUrl || this.updateUrl === 'YOUR_UPDATE_URL_HERE') {
+                return { hasUpdate: false, error: 'Update URL not configured' };
+            }
+
             const latestRelease = await this.fetchLatestRelease();
-            if (!latestRelease) {
+            if (!latestRelease || !latestRelease.tag_name) {
                 return { hasUpdate: false };
             }
 
@@ -34,46 +39,50 @@ class UpdateManager {
 
     async fetchLatestRelease() {
         return new Promise((resolve, reject) => {
-            const url = new URL(this.updateUrl);
-            
-            const options = {
-                hostname: url.hostname,
-                port: url.port || 443,
-                path: url.pathname + url.search,
-                method: 'GET',
-                headers: {
-                    'User-Agent': 'Discord-Selfbot-Automation',
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            };
-
-            const req = https.request(options, (res) => {
-                let data = '';
-
-                res.on('data', (chunk) => {
-                    data += chunk;
-                });
-
-                res.on('end', () => {
-                    try {
-                        const release = JSON.parse(data);
-                        resolve(release);
-                    } catch (error) {
-                        reject(new Error('Failed to parse release data'));
+            try {
+                const url = new URL(this.updateUrl);
+                
+                const options = {
+                    hostname: url.hostname,
+                    port: url.port || 443,
+                    path: url.pathname + url.search,
+                    method: 'GET',
+                    headers: {
+                        'User-Agent': 'Discord-Selfbot-Automation',
+                        'Accept': 'application/vnd.github.v3+json'
                     }
+                };
+
+                const req = https.request(options, (res) => {
+                    let data = '';
+
+                    res.on('data', (chunk) => {
+                        data += chunk;
+                    });
+
+                    res.on('end', () => {
+                        try {
+                            const release = JSON.parse(data);
+                            resolve(release);
+                        } catch (error) {
+                            reject(new Error('Failed to parse release data'));
+                        }
+                    });
                 });
-            });
 
-            req.on('error', (error) => {
+                req.on('error', (error) => {
+                    reject(error);
+                });
+
+                req.setTimeout(10000, () => {
+                    req.destroy();
+                    reject(new Error('Request timeout'));
+                });
+
+                req.end();
+            } catch (error) {
                 reject(error);
-            });
-
-            req.setTimeout(10000, () => {
-                req.destroy();
-                reject(new Error('Request timeout'));
-            });
-
-            req.end();
+            }
         });
     }
 
