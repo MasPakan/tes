@@ -148,14 +148,20 @@ npm start
 - `chalk`: Terminal colors & styling
 - Node.js built-in modules: `https`, `fs`, `path`, `child_process`
 
-## 🛡️ Error Handling
+## 🛡️ Error Handling & Stability
 - **CLI validation** - Input validation di setiap step
 - **Token validation** - Cek token sebelum login
 - **Command validation** - Validasi input command
+- **Unhandled rejection handler** - Tangani promise rejection yang tidak tertangkap
+- **Uncaught exception handler** - Tangani error yang tidak tertangkap
+- **Warning handler** - Tangani deprecation warnings
 - **Error logging** - Logging ke webhook (jika enable)
 - **Graceful shutdown** - Clean exit dengan cleanup
 - **Connection handling** - Auto retry pada connection error
 - **File validation** - Validasi attachment files
+- **Auto post error handling** - Stop auto post jika ada permission error
+- **Webhook error protection** - Webhook error tidak crash bot
+- **Retry logic** - Retry login dengan exponential backoff
 
 ## 📝 Log Format
 Webhook mengirim log dengan format:
@@ -184,16 +190,30 @@ Script akan otomatis restart jika terjadi error fatal, kecuali:
 ### Bot tidak login
 - Cek token user (bukan bot token)
 - Pastikan token valid dan tidak expired
+- Bot akan otomatis retry dengan exponential backoff
 
 ### Auto post tidak berjalan
 - Cek channel ID valid
-- Pastikan delay minimal 5 detik
+- Pastikan delay minimal 1 menit
 - Cek permission di channel
+- Auto post akan otomatis stop jika ada permission error
 
 ### Webhook tidak terkirim
 - Cek webhook URL valid
 - Pastikan webhook aktif
 - Cek network connection
+- Webhook error tidak akan crash bot
+
+### Bot crash atau error
+- Bot memiliki comprehensive error handling
+- Unhandled rejection dan exception akan di-log ke webhook
+- Bot akan otomatis restart jika memungkinkan
+- Cek console log untuk detail error
+
+### Memory leak atau performance
+- Bot otomatis cleanup saat shutdown
+- Auto post interval di-clear dengan benar
+- Error handling mencegah memory leak
 
 ## 📞 Support
 Untuk bantuan lebih lanjut, hubungi:

@@ -60,6 +60,9 @@ function sendWebhookLog(action, channel, message = null, error = null) {
         return;
     }
 
+    // Wrap in try-catch to prevent webhook errors from crashing the bot
+    try {
+
     const webhookData = {
         content: null,
         embeds: [{
@@ -148,96 +151,151 @@ function sendWebhookLog(action, channel, message = null, error = null) {
 
     req.write(postData);
     req.end();
+    } catch (webhookError) {
+        console.error('❌ Webhook error:', webhookError.message);
+        // Don't throw the error, just log it
+    }
 }
 
-// Auto post function
+// Auto post function with error handling
 async function startAutoPost(index, message, delay, channelId, attachments = []) {
-    const channel = client.channels.cache.get(channelId);
-    if (!channel) {
-        console.error(`Channel ${channelId} not found`);
-        sendWebhookLog("Auto Post Start Failed", null, message, `Channel ${channelId} not found`);
-        return;
-    }
-
-    const postData = {
-        message,
-        delay: delay * 1000, // Convert to milliseconds (delay is already in seconds)
-        channelId,
-        attachments,
-        intervalId: null,
-        isRunning: true
-    };
-
-    const postInterval = async () => {
-        try {
-            const messageOptions = { content: message };
-            
-            if (attachments.length > 0) {
-                messageOptions.files = attachments.map(att => ({
-                    attachment: att.url,
-                    name: att.name
-                }));
-            }
-
-            await channel.send(messageOptions);
-            console.log(`[${index}] Posted to ${channel.name} (${channelId})`);
-            sendWebhookLog("Auto Post Executed", channel, message);
-        } catch (error) {
-            console.error(`[${index}] Error posting to ${channel.name}:`, error.message);
-            sendWebhookLog("Auto Post Error", channel, message, error.message);
+    try {
+        const channel = client.channels.cache.get(channelId);
+        if (!channel) {
+            console.error(`❌ Channel ${channelId} not found`);
+            sendWebhookLog("Auto Post Start Failed", null, message, `Channel ${channelId} not found`);
+            return;
         }
-    };
 
-    // Start the interval
-    postData.intervalId = setInterval(postInterval, postData.delay);
-    autoPosts.set(index, postData);
+        const postData = {
+            message,
+            delay: delay * 1000, // Convert to milliseconds (delay is already in seconds)
+            channelId,
+            attachments,
+            intervalId: null,
+            isRunning: true
+        };
 
-    const delayMinutes = Math.round(delay / 60);
-    console.log(`[${index}] Auto post started in ${channel.name} with ${delayMinutes} minute(s) delay`);
-    sendWebhookLog("Auto Post Started", channel, message);
+        const postInterval = async () => {
+            try {
+                const messageOptions = { content: message };
+                
+                if (attachments.length > 0) {
+                    messageOptions.files = attachments.map(att => ({
+                        attachment: att.url,
+                        name: att.name
+                    }));
+                }
+
+                await channel.send(messageOptions);
+                console.log(`[${index}] Posted to ${channel.name} (${channelId})`);
+                sendWebhookLog("Auto Post Executed", channel, message);
+            } catch (error) {
+                console.error(`❌ [${index}] Error posting to ${channel.name}:`, error.message);
+                console.error('Stack:', error.stack);
+                sendWebhookLog("Auto Post Error", channel, message, error.message);
+                
+                // If it's a permission error, stop the auto post
+                if (error.code === 50013 || error.message.includes('permission')) {
+                    console.log(`[${index}] Stopping auto post due to permission error`);
+                    stopAutoPost(index);
+                }
+            }
+        };
+
+        // Start the interval
+        postData.intervalId = setInterval(postInterval, postData.delay);
+        autoPosts.set(index, postData);
+
+        const delayMinutes = Math.round(delay / 60);
+        console.log(`[${index}] Auto post started in ${channel.name} with ${delayMinutes} minute(s) delay`);
+        sendWebhookLog("Auto Post Started", channel, message);
+    } catch (error) {
+        console.error(`❌ Error starting auto post [${index}]:`, error);
+        console.error('Stack:', error.stack);
+        sendWebhookLog("Auto Post Start Error", null, message, error.message);
+    }
 }
 
-// Stop auto post function
+// Stop auto post function with error handling
 function stopAutoPost(index) {
-    if (index === 'all') {
-        autoPosts.forEach((postData, idx) => {
-            if (postData.intervalId) {
-                clearInterval(postData.intervalId);
-                postData.isRunning = false;
-                console.log(`[${idx}] Auto post stopped`);
-            }
-        });
-        autoPosts.clear();
-        console.log('All auto posts stopped');
-        return;
-    }
-
-    const postData = autoPosts.get(index);
-    if (postData) {
-        if (postData.intervalId) {
-            clearInterval(postData.intervalId);
+    try {
+        if (index === 'all') {
+            autoPosts.forEach((postData, idx) => {
+                try {
+                    if (postData.intervalId) {
+                        clearInterval(postData.intervalId);
+                        postData.isRunning = false;
+                        console.log(`[${idx}] Auto post stopped`);
+                    }
+                } catch (error) {
+                    console.error(`❌ Error stopping auto post [${idx}]:`, error.message);
+                }
+            });
+            autoPosts.clear();
+            console.log('✅ All auto posts stopped');
+            return;
         }
-        postData.isRunning = false;
-        autoPosts.delete(index);
-        console.log(`[${index}] Auto post stopped`);
-    } else {
-        console.log(`[${index}] Auto post not found`);
+
+        const postData = autoPosts.get(index);
+        if (postData) {
+            try {
+                if (postData.intervalId) {
+                    clearInterval(postData.intervalId);
+                }
+                postData.isRunning = false;
+                autoPosts.delete(index);
+                console.log(`[${index}] Auto post stopped`);
+            } catch (error) {
+                console.error(`❌ Error stopping auto post [${index}]:`, error.message);
+            }
+        } else {
+            console.log(`[${index}] Auto post not found`);
+        }
+    } catch (error) {
+        console.error('❌ Error in stopAutoPost function:', error);
+        console.error('Stack:', error.stack);
     }
 }
 
-// Command handler
+// Command handler with error handling
 client.on('messageCreate', async (message) => {
-    if (message.author.id !== client.user.id) return;
+    try {
+        if (message.author.id !== client.user.id) return;
 
-    const args = message.content.trim().split(/\s+/);
-    const command = args[0].toLowerCase();
-    
-    // Check if message starts with configured prefix
-    if (!command.startsWith(config.prefix)) return;
-    
-    // Remove prefix from command
-    const actualCommand = command.substring(config.prefix.length);
+        const args = message.content.trim().split(/\s+/);
+        const command = args[0].toLowerCase();
+        
+        // Check if message starts with configured prefix
+        if (!command.startsWith(config.prefix)) return;
+        
+        // Remove prefix from command
+        const actualCommand = command.substring(config.prefix.length);
 
+        // Wrap command execution in try-catch
+        await executeCommand(message, actualCommand, args);
+    } catch (error) {
+        console.error('❌ Error in message handler:', error);
+        console.error('Stack:', error.stack);
+        
+        // Log to webhook if available
+        if (config.webhookUrl) {
+            sendWebhookLog("Message Handler Error", null, null, error.message);
+        }
+        
+        // Try to send error message to user
+        try {
+            if (message && message.edit) {
+                await message.edit(`❌ An error occurred: ${error.message}`);
+            }
+        } catch (editError) {
+            console.error('❌ Failed to send error message:', editError.message);
+        }
+    }
+});
+
+// Command execution function
+async function executeCommand(message, actualCommand, args) {
     try {
         switch (actualCommand) {
             case 'post':
@@ -361,16 +419,23 @@ client.on('messageCreate', async (message) => {
                 break;
         }
     } catch (error) {
-        console.error('Command error:', error);
+        console.error('❌ Command execution error:', error);
+        console.error('Stack:', error.stack);
+        
+        // Log to webhook if available
+        if (config.webhookUrl) {
+            sendWebhookLog("Command Error", null, null, error.message);
+        }
+        
         try {
-            await message.edit(`❌ Error: ${error.message}`);
+            await message.edit(`❌ Command error: ${error.message}`);
         } catch (editError) {
-            console.error('Failed to edit message:', editError);
+            console.error('❌ Failed to edit message:', editError.message);
         }
     }
-});
+}
 
-// Set up Rich Presence
+// Set up Rich Presence with error handling
 function setupRichPresence() {
     if (!config.enableRPC) {
         console.log('ℹ️  Rich Presence disabled in configuration');
@@ -396,6 +461,12 @@ function setupRichPresence() {
         console.log('✅ Rich Presence set successfully');
     } catch (error) {
         console.error('❌ Failed to set Rich Presence:', error.message);
+        console.error('Stack:', error.stack);
+        
+        // Log to webhook if available
+        if (config.webhookUrl) {
+            sendWebhookLog("Rich Presence Error", null, null, error.message);
+        }
     }
 }
 
@@ -414,57 +485,209 @@ client.on('ready', () => {
 });
 
 client.on('error', (error) => {
-    console.error('Client error:', error);
-    sendWebhookLog("Bot Error", null, null, error.message);
+    console.error('❌ Discord Client Error:', error);
+    console.error('Stack:', error.stack);
+    
+    // Log to webhook if available
+    if (config.webhookUrl) {
+        sendWebhookLog("Discord Client Error", null, null, error.message);
+    }
+    
+    // Don't exit immediately, try to reconnect
+    console.log('🔄 Attempting to continue despite client error...');
 });
 
 client.on('warn', (info) => {
-    console.warn('Client warning:', info);
-});
-
-// Graceful shutdown
-process.on('SIGINT', () => {
-    console.log('\n🛑 Shutting down...');
-    stopAutoPost('all');
-    sendWebhookLog("Bot Shutdown", null, "Selfbot shutting down");
-    process.exit(0);
-});
-
-process.on('SIGTERM', () => {
-    console.log('\n🛑 Shutting down...');
-    stopAutoPost('all');
-    sendWebhookLog("Bot Shutdown", null, "Selfbot shutting down");
-    process.exit(0);
-});
-
-// Main function
-async function main() {
-    const cli = new DiscordSelfbotCLI();
-    const result = await cli.start();
+    console.warn('⚠️  Discord Client Warning:', info);
     
-    if (result.action === 'start') {
-        // Load configuration from CLI result
-        config = { ...config, ...result.config };
+    // Log to webhook if available
+    if (config.webhookUrl) {
+        sendWebhookLog("Discord Client Warning", null, null, String(info));
+    }
+});
+
+client.on('disconnect', () => {
+    console.log('🔌 Discord client disconnected');
+    sendWebhookLog("Bot Disconnected", null, "Discord client disconnected");
+});
+
+client.on('reconnecting', () => {
+    console.log('🔄 Reconnecting to Discord...');
+    sendWebhookLog("Bot Reconnecting", null, "Attempting to reconnect to Discord");
+});
+
+client.on('resume', () => {
+    console.log('✅ Reconnected to Discord');
+    sendWebhookLog("Bot Reconnected", null, "Successfully reconnected to Discord");
+});
+
+// Error handling and cleanup
+let isShuttingDown = false;
+
+// Unhandled Promise Rejection Handler
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Promise Rejection:', reason);
+    console.error('Promise:', promise);
+    
+    // Log to webhook if available
+    if (config.webhookUrl) {
+        sendWebhookLog("Unhandled Promise Rejection", null, null, reason?.message || String(reason));
+    }
+    
+    // Don't exit immediately, let the process continue
+    console.log('⚠️  Process continuing despite unhandled rejection...');
+});
+
+// Uncaught Exception Handler
+process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught Exception:', error);
+    console.error('Stack:', error.stack);
+    
+    // Log to webhook if available
+    if (config.webhookUrl) {
+        sendWebhookLog("Uncaught Exception", null, null, error.message);
+    }
+    
+    // Cleanup before exit
+    if (!isShuttingDown) {
+        isShuttingDown = true;
+        console.log('🛑 Emergency shutdown due to uncaught exception...');
+        stopAutoPost('all');
+        sendWebhookLog("Emergency Shutdown", null, "Bot crashed due to uncaught exception");
         
-        // Validate configuration
-        if (!config.token) {
-            console.error('❌ No token provided');
+        // Give some time for cleanup
+        setTimeout(() => {
             process.exit(1);
+        }, 2000);
+    }
+});
+
+// Warning Handler
+process.on('warning', (warning) => {
+    console.warn('⚠️  Warning:', warning.name);
+    console.warn('Message:', warning.message);
+    console.warn('Stack:', warning.stack);
+    
+    // Log to webhook if available
+    if (config.webhookUrl) {
+        sendWebhookLog("Process Warning", null, null, `${warning.name}: ${warning.message}`);
+    }
+});
+
+// Graceful shutdown handlers
+function gracefulShutdown(signal) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+    
+    console.log(`\n🛑 Received ${signal}, shutting down gracefully...`);
+    
+    try {
+        // Stop all auto posts
+        stopAutoPost('all');
+        
+        // Send shutdown log to webhook
+        if (config.webhookUrl) {
+            sendWebhookLog("Bot Shutdown", null, `Bot shutting down due to ${signal}`);
         }
         
-        // Start the bot
+        console.log('✅ Cleanup completed');
+        
+        // Give some time for webhook to send
+        setTimeout(() => {
+            process.exit(0);
+        }, 1000);
+        
+    } catch (error) {
+        console.error('❌ Error during shutdown:', error);
+        process.exit(1);
+    }
+}
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+// Process exit handler
+process.on('exit', (code) => {
+    console.log(`📤 Process exiting with code: ${code}`);
+    if (code !== 0) {
+        console.log('❌ Process exited with error code');
+    }
+});
+
+// Main function with error handling
+async function main() {
+    try {
+        const cli = new DiscordSelfbotCLI();
+        const result = await cli.start();
+        
+        if (result.action === 'start') {
+            // Load configuration from CLI result
+            config = { ...config, ...result.config };
+            
+            // Validate configuration
+            if (!config.token) {
+                console.error('❌ No token provided');
+                process.exit(1);
+            }
+            
+            // Start the bot with retry logic
+            await startBotWithRetry();
+        }
+    } catch (error) {
+        console.error('❌ Fatal error in main:', error);
+        console.error('Stack:', error.stack);
+        
+        // Log to webhook if available
+        if (config.webhookUrl) {
+            sendWebhookLog("Fatal Error", null, null, error.message);
+        }
+        
+        console.log('🔄 Restarting in 5 seconds...');
+        setTimeout(() => {
+            main().catch(err => {
+                console.error('❌ Failed to restart:', err.message);
+                process.exit(1);
+            });
+        }, 5000);
+    }
+}
+
+// Bot startup with retry logic
+async function startBotWithRetry(maxRetries = 3) {
+    let retryCount = 0;
+    
+    while (retryCount < maxRetries) {
         try {
+            console.log(`🔄 Attempting to login (attempt ${retryCount + 1}/${maxRetries})...`);
             await client.login(config.token);
+            return; // Success, exit the retry loop
         } catch (error) {
-            console.error('❌ Login failed:', error.message);
-            console.log('\n🔄 Returning to main menu...');
-            setTimeout(() => main(), 2000);
+            retryCount++;
+            console.error(`❌ Login attempt ${retryCount} failed:`, error.message);
+            
+            if (retryCount < maxRetries) {
+                const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+                console.log(`⏳ Retrying in ${delay/1000} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            } else {
+                console.error('❌ All login attempts failed');
+                console.log('🔄 Returning to main menu...');
+                setTimeout(() => main(), 2000);
+            }
         }
     }
 }
 
-// Start the application
+// Start the application with global error handling
 main().catch(error => {
-    console.error('❌ Fatal error:', error.message);
+    console.error('❌ Unhandled error in main process:', error);
+    console.error('Stack:', error.stack);
+    
+    // Log to webhook if available
+    if (config.webhookUrl) {
+        sendWebhookLog("Unhandled Main Error", null, null, error.message);
+    }
+    
+    console.log('🛑 Exiting due to unhandled error...');
     process.exit(1);
 });
