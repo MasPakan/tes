@@ -161,7 +161,7 @@ async function startAutoPost(index, message, delay, channelId, attachments = [])
 
     const postData = {
         message,
-        delay: delay * 1000, // Convert to milliseconds
+        delay: delay * 1000, // Convert to milliseconds (delay is already in seconds)
         channelId,
         attachments,
         intervalId: null,
@@ -192,7 +192,8 @@ async function startAutoPost(index, message, delay, channelId, attachments = [])
     postData.intervalId = setInterval(postInterval, postData.delay);
     autoPosts.set(index, postData);
 
-    console.log(`[${index}] Auto post started in ${channel.name} with ${delay}s delay`);
+    const delayMinutes = Math.round(delay / 60);
+    console.log(`[${index}] Auto post started in ${channel.name} with ${delayMinutes} minute(s) delay`);
     sendWebhookLog("Auto Post Started", channel, message);
 }
 
@@ -241,24 +242,26 @@ client.on('messageCreate', async (message) => {
         switch (actualCommand) {
             case 'post':
                 if (args.length < 4) {
-                    await message.edit(`Usage: ${config.prefix}post <index> <message> <delay> <channel_id>\n\n**Note:** Attach files to your command message to include them in auto posts!`);
+                    await message.edit(`Usage: ${config.prefix}post <index> <message> <delay_minutes> <channel_id>\n\n**Note:** Attach files to your command message to include them in auto posts!`);
                     return;
                 }
 
                 const index = parseInt(args[1]);
                 const postMessage = args[2];
-                const delay = parseInt(args[3]);
+                const delayMinutes = parseInt(args[3]);
                 const channelId = args[4];
 
-                if (isNaN(index) || isNaN(delay)) {
+                if (isNaN(index) || isNaN(delayMinutes)) {
                     await message.edit('Index and delay must be numbers');
                     return;
                 }
 
-                if (delay < 5) {
-                    await message.edit('Minimum delay is 5 seconds');
+                if (delayMinutes < 1) {
+                    await message.edit('Minimum delay is 1 minute');
                     return;
                 }
+
+                const delay = delayMinutes * 60; // Convert minutes to seconds
 
                 // Process attachments from the message
                 const attachments = [];
@@ -276,7 +279,7 @@ client.on('messageCreate', async (message) => {
 
                 await startAutoPost(index, postMessage, delay, channelId, attachments);
                 const attachmentInfo = attachments.length > 0 ? ` with ${attachments.length} attachment(s)` : '';
-                await message.edit(`✅ Auto post [${index}] started in <#${channelId}> with ${delay}s delay${attachmentInfo}`);
+                await message.edit(`✅ Auto post [${index}] started in <#${channelId}> with ${delayMinutes} minute(s) delay${attachmentInfo}`);
                 break;
 
             case 'index':
@@ -289,7 +292,8 @@ client.on('messageCreate', async (message) => {
                 autoPosts.forEach((postData, idx) => {
                     const channel = client.channels.cache.get(postData.channelId);
                     const channelName = channel ? channel.name : 'Unknown';
-                    indexList += `[${idx}] ${channelName} (${postData.channelId}) - ${postData.delay/1000}s delay - ${postData.isRunning ? '🟢 Running' : '🔴 Stopped'}\n`;
+                    const delayMinutes = Math.round(postData.delay / 60000);
+                    indexList += `[${idx}] ${channelName} (${postData.channelId}) - ${delayMinutes} minute(s) delay - ${postData.isRunning ? '🟢 Running' : '🔴 Stopped'}\n`;
                 });
 
                 await message.edit(indexList);
@@ -324,7 +328,7 @@ client.on('messageCreate', async (message) => {
                     fields: [
                         {
                             name: "📝 **Auto Post Commands**",
-                            value: `\`${config.prefix}post <index> <message> <delay> <channel_id>\`\nStart auto posting dengan delay custom\n**Attach files to your command message to include them!**`,
+                            value: `\`${config.prefix}post <index> <message> <delay_minutes> <channel_id>\`\nStart auto posting dengan delay custom (dalam menit)\n**Attach files to your command message to include them!**`,
                             inline: false
                         },
                         {
@@ -334,7 +338,7 @@ client.on('messageCreate', async (message) => {
                         },
                         {
                             name: "⚙️ **Parameters**",
-                            value: "• `index`: Nomor unik untuk identifikasi autopost\n• `message`: Pesan yang akan di-post\n• `delay`: Delay dalam detik (min 5s)\n• `channel_id`: ID channel target\n• `attachments`: **Attach files to your command message!**",
+                            value: "• `index`: Nomor unik untuk identifikasi autopost\n• `message`: Pesan yang akan di-post\n• `delay_minutes`: Delay dalam menit (min 1 menit)\n• `channel_id`: ID channel target\n• `attachments`: **Attach files to your command message!**",
                             inline: false
                         },
                         {

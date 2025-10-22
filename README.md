@@ -39,14 +39,14 @@ npm start
 - **Auto update system** - Cek dan update script otomatis
 
 ### 2. Auto Posting System
-- **Command:** `{prefix}post <index> <message> <delay> <channel_id>`
+- **Command:** `{prefix}post <index> <message> <delay_minutes> <channel_id>`
 - Multi channel posting
-- Custom delay per channel
+- Custom delay per channel (dalam menit)
 - **Easy file attachment** (just attach files to your command message!)
 - Error handling robust
 
 ### 3. Management Commands
-- `{prefix}index` - List semua autopost aktif
+- `{prefix}index` - List semua autopost aktif (delay ditampilkan dalam menit)
 - `{prefix}stop <index>` - Hentikan autopost spesifik
 - `{prefix}stop` - Hentikan semua autopost
 - `{prefix}ping` - Cek latency bot & API
@@ -88,22 +88,22 @@ npm start
 
 **Auto Posting:**
 ```
-{prefix}post 1 "Promo special hari ini! 🎉" 30 123456789012345678
+{prefix}post 1 "Promo special hari ini! 🎉" 5 123456789012345678
 ```
 - `1` = Index autopost
 - `"Promo special hari ini! 🎉"` = Pesan
-- `30` = Delay 30 detik
+- `5` = Delay 5 menit
 - `123456789012345678` = Channel ID
 
 **Dengan Attachment:**
 ```
-{prefix}post 2 "Check this out!" 60 123456789012345678
+{prefix}post 2 "Check this out!" 10 123456789012345678
 [Attach files to this message - image.png, video.mp4, etc.]
 ```
 
 **Management:**
 ```
-{prefix}index          # Lihat semua autopost aktif
+{prefix}index          # Lihat semua autopost aktif (delay dalam menit)
 {prefix}stop 1         # Hentikan autopost index 1
 {prefix}stop           # Hentikan semua autopost
 {prefix}ping           # Cek latency
@@ -174,7 +174,7 @@ Script akan otomatis restart jika terjadi error fatal, kecuali:
 
 ## ⚠️ Catatan Penting
 1. **Token Security**: Jangan share user token Anda
-2. **Rate Limiting**: Discord memiliki rate limit, gunakan delay minimal 5 detik
+2. **Rate Limiting**: Discord memiliki rate limit, gunakan delay minimal 1 menit
 3. **File Attachments**: Attach files langsung ke pesan command, tidak perlu path
 4. **Channel Access**: Pastikan bot memiliki akses ke channel target
 5. **Webhook**: Setup webhook untuk monitoring yang lebih baik
