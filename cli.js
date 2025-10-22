@@ -2,12 +2,13 @@ const inquirer = require('inquirer').default;
 const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
-const UpdateManager = require('./update');
+const https = require('https');
+const RepositoryUpdateManager = require('./repo-update');
 
 class DiscordSelfbotCLI {
     constructor() {
         this.configFile = path.join(__dirname, 'ihannsy.json');
-        this.updateManager = new UpdateManager();
+        this.updateManager = new RepositoryUpdateManager();
         this.ensureConfigFile();
     }
 
@@ -28,7 +29,8 @@ class DiscordSelfbotCLI {
     loadAccounts() {
         try {
             const data = fs.readFileSync(this.configFile, 'utf8');
-            return JSON.parse(data);
+            const config = JSON.parse(data);
+            return config.accounts || {};
         } catch (error) {
             return {};
         }
@@ -58,87 +60,36 @@ class DiscordSelfbotCLI {
 
     async checkForUpdates() {
         try {
-            console.log(chalk.blue('🔍 Checking for updates...'));
-            const updateInfo = await this.updateManager.checkForUpdates();
-            
-            if (updateInfo.hasUpdate) {
-                console.log(chalk.green(`\n🎉 Update available!`));
-                console.log(chalk.yellow(`   Current version: ${updateInfo.currentVersion}`));
-                console.log(chalk.green(`   Latest version: ${updateInfo.latestVersion}`));
-                
-                if (updateInfo.release) {
-                    console.log(chalk.cyan(`   Release notes: ${updateInfo.release.body || 'No release notes available'}`));
-                }
-                
-                const { shouldUpdate } = await inquirer.prompt([{
-                    type: 'confirm',
-                    name: 'shouldUpdate',
-                    message: 'Would you like to update now?',
-                    default: true
-                }]);
-                
-                if (shouldUpdate) {
-                    await this.performUpdate(updateInfo);
-                } else {
-                    console.log(chalk.yellow('⏭️  Skipping update. You can update later by running the script again.'));
-                }
-            } else {
-                console.log(chalk.green('✅ You are running the latest version!'));
-            }
-            
-            console.log(''); // Empty line for spacing
+            await this.updateManager.showUpdatePrompt();
         } catch (error) {
             console.log(chalk.yellow('⚠️  Could not check for updates. Continuing...'));
             console.log('');
         }
     }
 
-    async performUpdate(updateInfo) {
-        try {
-            console.log(chalk.blue('🔄 Updating script...'));
-            
-            const success = await this.updateManager.performUpdate();
-            
-            if (success) {
-                console.log(chalk.green('✅ Update completed successfully!'));
-                console.log(chalk.yellow('🔄 Please restart the script to apply changes.'));
-                
-                const { restartNow } = await inquirer.prompt([{
-                    type: 'confirm',
-                    name: 'restartNow',
-                    message: 'Would you like to restart the script now?',
-                    default: true
-                }]);
-                
-                if (restartNow) {
-                    console.log(chalk.blue('🔄 Restarting...'));
-                    process.exit(0); // Exit to allow restart
-                }
-            } else {
-                console.log(chalk.red('❌ Update failed. Please try again later.'));
-            }
-        } catch (error) {
-            console.log(chalk.red('❌ Update error:', error.message));
-        }
-    }
 
     async showMainMenu() {
         const accounts = this.loadAccounts();
         const accountList = Object.keys(accounts);
 
+        let choices;
         if (accountList.length === 0) {
-            return await this.showNewAccountFlow();
+            // No accounts saved - only show new account and quit
+            choices = [
+                { name: `${chalk.blue('➕')} New Account`, value: 'new' },
+                { name: `${chalk.red('❌')} Quit`, value: 'quit' }
+            ];
+        } else {
+            // Accounts available - show accounts, new account, and quit
+            choices = [
+                ...accountList.map(username => ({
+                    name: `${chalk.green('👤')} ${username}`,
+                    value: username
+                })),
+                { name: `${chalk.blue('➕')} New Account`, value: 'new' },
+                { name: `${chalk.red('❌')} Quit`, value: 'quit' }
+            ];
         }
-
-        const choices = [
-            ...accountList.map(username => ({
-                name: `${chalk.green('👤')} ${username}`,
-                value: username
-            })),
-            { name: `${chalk.blue('➕')} New Account`, value: 'new' },
-            { name: `${chalk.yellow('🔄')} Update Script`, value: 'update' },
-            { name: `${chalk.red('❌')} Quit`, value: 'quit' }
-        ];
 
         const { action } = await inquirer.prompt([{
             type: 'list',
@@ -157,19 +108,13 @@ class DiscordSelfbotCLI {
             return await this.showNewAccountFlow();
         }
 
-        if (action === 'update') {
-            return await this.showUpdateMenu();
-        }
-
         return await this.showAccountMenu(action, accounts[action]);
     }
 
     async showAccountMenu(username, account) {
         const choices = [
             { name: `${chalk.green('🚀')} Start Bot`, value: 'start' },
-            { name: `${chalk.blue('⚙️')} New Config`, value: 'config' },
-            { name: `${chalk.red('🗑️')} Remove Account`, value: 'remove' },
-            { name: `${chalk.gray('⬅️')} Back to Main Menu`, value: 'back' }
+            { name: `${chalk.blue('⚙️')} New Config`, value: 'config' }
         ];
 
         const { action } = await inquirer.prompt([{
@@ -184,10 +129,6 @@ class DiscordSelfbotCLI {
                 return { action: 'start', config: account };
             case 'config':
                 return await this.showNewAccountFlow(username);
-            case 'remove':
-                return await this.removeAccount(username);
-            case 'back':
-                return await this.showMainMenu();
         }
     }
 
@@ -272,30 +213,20 @@ class DiscordSelfbotCLI {
             default: true
         }]);
 
-        // Step 5: Get username from token (optional)
+        // Step 5: Get username from Discord API
         let username = existingUsername || 'Unknown User';
-        if (!existingUsername) {
-            const { useUsername } = await inquirer.prompt([{
-                type: 'confirm',
-                name: 'useUsername',
-                message: 'Would you like to set a custom username for this account?',
-                default: false
-            }]);
-
-            if (useUsername) {
-                const { customUsername } = await inquirer.prompt([{
-                    type: 'input',
-                    name: 'customUsername',
-                    message: 'Enter username for this account:',
-                    validate: (input) => {
-                        if (!input || input.length < 2) {
-                            return 'Username must be at least 2 characters long';
-                        }
-                        return true;
-                    }
-                }]);
-                username = customUsername;
+        
+        // Try to get username from Discord API
+        try {
+            const userData = await this.fetchDiscordUser(token);
+            if (userData) {
+                username = userData.username || userData.global_name || userData.display_name || 'Unknown User';
+                console.log(chalk.green(`✅ Detected username: ${username}`));
+            } else {
+                console.log(chalk.yellow('⚠️  Could not fetch username from Discord API, using default'));
             }
+        } catch (error) {
+            console.log(chalk.yellow('⚠️  Could not fetch username from Discord API, using default'));
         }
 
         // Save configuration
@@ -334,62 +265,58 @@ class DiscordSelfbotCLI {
         }
     }
 
+    async fetchDiscordUser(token) {
+        return new Promise((resolve, reject) => {
+            const options = {
+                hostname: 'discord.com',
+                port: 443,
+                path: '/api/v9/users/@me',
+                method: 'GET',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            const req = https.request(options, (res) => {
+                let data = '';
+
+                res.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                res.on('end', () => {
+                    try {
+                        if (res.statusCode === 200) {
+                            const userData = JSON.parse(data);
+                            resolve(userData);
+                        } else {
+                            resolve(null);
+                        }
+                    } catch (error) {
+                        resolve(null);
+                    }
+                });
+            });
+
+            req.on('error', (error) => {
+                resolve(null);
+            });
+
+            req.setTimeout(10000, () => {
+                req.destroy();
+                resolve(null);
+            });
+
+            req.end();
+        });
+    }
+
     async start() {
         await this.showWelcome();
         return await this.showMainMenu();
     }
 
-    async showUpdateMenu() {
-        const choices = [
-            { name: `${chalk.blue('🔍')} Check for Updates`, value: 'check' },
-            { name: `${chalk.green('⬆️')} Force Update`, value: 'force' },
-            { name: `${chalk.gray('⬅️')} Back to Main Menu`, value: 'back' }
-        ];
-
-        const { action } = await inquirer.prompt([{
-            type: 'list',
-            name: 'action',
-            message: 'Update Management:',
-            choices
-        }]);
-
-        switch (action) {
-            case 'check':
-                await this.checkForUpdates();
-                return await this.showMainMenu();
-            case 'force':
-                await this.performUpdate({ hasUpdate: true });
-                return await this.showMainMenu();
-            case 'back':
-                return await this.showMainMenu();
-        }
-    }
-
-    async showUpdateMenu() {
-        const choices = [
-            { name: `${chalk.blue('🔍')} Check for Updates`, value: 'check' },
-            { name: `${chalk.green('⬆️')} Force Update`, value: 'force' },
-            { name: `${chalk.gray('⬅️')} Back to Main Menu`, value: 'back' }
-        ];
-
-        const { action } = await inquirer.prompt([{
-            type: 'list',
-            name: 'action',
-            message: 'Update Management:',
-            choices
-        }]);
-
-        switch (action) {
-            case 'check':
-                await this.checkForUpdates();
-                return await this.showMainMenu();
-            case 'force':
-                await this.performUpdate({ hasUpdate: true });
-                return await this.showMainMenu();
-            case 'back':
-                return await this.showMainMenu();
-        }
-    }
 }
 
 module.exports = DiscordSelfbotCLI;
