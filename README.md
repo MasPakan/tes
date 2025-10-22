@@ -28,10 +28,10 @@ npm start
 ## 📋 Fitur
 
 ### 1. Auto Posting System
-- **Command:** `!post <index> <message> <delay> <channel_id> [attachments...]`
+- **Command:** `!post <index> <message> <delay> <channel_id>`
 - Multi channel posting
 - Custom delay per channel
-- Support file attachments
+- **Easy file attachment** (just attach files to your command message!)
 - Error handling robust
 
 ### 2. Management Commands
@@ -65,7 +65,8 @@ npm start
 
 ### Dengan Attachment
 ```
-!post 2 "Check this out!" 60 123456789012345678 ./image.png ./video.mp4
+!post 2 "Check this out!" 60 123456789012345678
+[Attach files to this message - image.png, video.mp4, etc.]
 ```
 
 ### Management
@@ -82,6 +83,12 @@ npm start
 ### Environment Variables
 - `DISCORD_TOKEN`: User token Discord Anda
 - `WEBHOOK_URL`: URL webhook untuk logging (opsional)
+
+### File Attachments
+- **Cara mudah**: Attach files langsung ke pesan command `!post`
+- File akan otomatis terdeteksi dan disertakan dalam auto post
+- Support semua jenis file (gambar, video, dokumen, dll)
+- Tidak perlu path file atau upload manual
 
 ### Rich Presence
 Edit di `index.js` bagian `setupRichPresence()`:
@@ -128,7 +135,7 @@ Script akan otomatis restart jika terjadi error fatal, kecuali:
 ## ⚠️ Catatan Penting
 1. **Token Security**: Jangan share user token Anda
 2. **Rate Limiting**: Discord memiliki rate limit, gunakan delay minimal 5 detik
-3. **File Attachments**: Pastikan file path valid dan accessible
+3. **File Attachments**: Attach files langsung ke pesan command, tidak perlu path
 4. **Channel Access**: Pastikan bot memiliki akses ke channel target
 5. **Webhook**: Setup webhook untuk monitoring yang lebih baik
 

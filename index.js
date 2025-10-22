@@ -155,7 +155,7 @@ async function startAutoPost(index, message, delay, channelId, attachments = [])
             
             if (attachments.length > 0) {
                 messageOptions.files = attachments.map(att => ({
-                    attachment: att.path,
+                    attachment: att.url,
                     name: att.name
                 }));
             }
@@ -216,7 +216,7 @@ client.on('messageCreate', async (message) => {
         switch (command) {
             case '!post':
                 if (args.length < 4) {
-                    await message.edit('Usage: !post <index> <message> <delay> <channel_id> [attachment_paths...]');
+                    await message.edit('Usage: !post <index> <message> <delay> <channel_id>\n\n**Note:** Attach files to your command message to include them in auto posts!');
                     return;
                 }
 
@@ -224,7 +224,6 @@ client.on('messageCreate', async (message) => {
                 const postMessage = args[2];
                 const delay = parseInt(args[3]);
                 const channelId = args[4];
-                const attachmentPaths = args.slice(5);
 
                 if (isNaN(index) || isNaN(delay)) {
                     await message.edit('Index and delay must be numbers');
@@ -236,19 +235,23 @@ client.on('messageCreate', async (message) => {
                     return;
                 }
 
-                // Process attachments
+                // Process attachments from the message
                 const attachments = [];
-                for (const attPath of attachmentPaths) {
-                    if (fs.existsSync(attPath)) {
+                if (message.attachments && message.attachments.size > 0) {
+                    message.attachments.forEach(attachment => {
                         attachments.push({
-                            path: attPath,
-                            name: path.basename(attPath)
+                            url: attachment.url,
+                            name: attachment.name,
+                            size: attachment.size,
+                            contentType: attachment.contentType
                         });
-                    }
+                    });
+                    console.log(`[${index}] Found ${attachments.length} attachment(s) to include in auto post`);
                 }
 
                 await startAutoPost(index, postMessage, delay, channelId, attachments);
-                await message.edit(`✅ Auto post [${index}] started in <#${channelId}> with ${delay}s delay`);
+                const attachmentInfo = attachments.length > 0 ? ` with ${attachments.length} attachment(s)` : '';
+                await message.edit(`✅ Auto post [${index}] started in <#${channelId}> with ${delay}s delay${attachmentInfo}`);
                 break;
 
             case '!index':
@@ -296,7 +299,7 @@ client.on('messageCreate', async (message) => {
                     fields: [
                         {
                             name: "📝 **Auto Post Commands**",
-                            value: "`!post <index> <message> <delay> <channel_id> [attachments...]`\nStart auto posting dengan delay custom",
+                            value: "`!post <index> <message> <delay> <channel_id>`\nStart auto posting dengan delay custom\n**Attach files to your command message to include them!**",
                             inline: false
                         },
                         {
@@ -306,12 +309,12 @@ client.on('messageCreate', async (message) => {
                         },
                         {
                             name: "⚙️ **Parameters**",
-                            value: "• `index`: Nomor unik untuk identifikasi autopost\n• `message`: Pesan yang akan di-post\n• `delay`: Delay dalam detik (min 5s)\n• `channel_id`: ID channel target\n• `attachments`: Path file yang akan di-attach",
+                            value: "• `index`: Nomor unik untuk identifikasi autopost\n• `message`: Pesan yang akan di-post\n• `delay`: Delay dalam detik (min 5s)\n• `channel_id`: ID channel target\n• `attachments`: **Attach files to your command message!**",
                             inline: false
                         },
                         {
                             name: "🔧 **Features**",
-                            value: "• Multi channel posting\n• Custom delay per channel\n• File attachment support\n• Webhook logging\n• Rich Presence\n• Error handling",
+                            value: "• Multi channel posting\n• Custom delay per channel\n• **Easy file attachment** (just attach to command!)\n• Webhook logging\n• Rich Presence\n• Error handling",
                             inline: false
                         }
                     ],
