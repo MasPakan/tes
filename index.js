@@ -42,94 +42,132 @@ let postIndex = 1;
 // Utility functions
 function formatDateTime() {
     const now = new Date();
-    return now.toLocaleString('en-US', {
-        timeZone: 'Asia/Jakarta',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    });
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const dayName = days[now.getDay()];
+    const day = now.getDate();
+    const month = months[now.getMonth()];
+    const year = now.getFullYear();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    
+    return `${dayName}, ${day} ${month} ${year} | ${hours}.${minutes}.${seconds}`;
 }
 
-function sendWebhookLog(action, channel, message = null, error = null) {
+// Autopost webhook log function
+function sendAutopostWebhookLog(action, channel, message = null, error = null, delay = null, uptime = null, postCount = null) {
     if (!config.webhookUrl || config.webhookUrl === 'YOUR_WEBHOOK_URL_HERE') {
         console.log('Webhook URL not configured, skipping webhook log');
         return;
     }
 
-    // Wrap in try-catch to prevent webhook errors from crashing the bot
     try {
-
-    const webhookData = {
-        content: null,
-        embeds: [{
-            title: "**AUTOPOST** - **PAKAN STORE** - **AD & PROMOTE**",
-            description: "Webhook Log Autopostin': This feature right here make integration with third-party systems easy, 'cause it hand over the automatic post log payload. That's the real key for checkin' system health and trackin' the history.",
-            color: error ? 0xFF0000 : 0x00FF00,
-            fields: [
-                {
-                    name: "Client User",
-                    value: `<@${client.user.id}>`,
-                    inline: true
+        const webhookData = {
+            content: null,
+            embeds: [{
+                title: "**AUTOPOST** - **PAKAN STORE** - **AD & PROMOTE**",
+                description: "Webhook Log Autopostin': This feature right here make integration with third-party systems easy, 'cause it hand over the automatic post log payload. That's the real key for checkin' system health and trackin' the history.",
+                color: null,
+                fields: [
+                    {
+                        name: "Client User",
+                        value: `<@${client.user.id}>`,
+                        inline: true
+                    },
+                    {
+                        name: "Channel Post",
+                        value: channel ? `<#${channel.id}>` : "N/A"
+                    },
+                    {
+                        name: "Delay per Message",
+                        value: delay ? `${delay} minutes` : "N/A"
+                    },
+                    {
+                        name: "Uptime App",
+                        value: uptime || "N/A"
+                    },
+                    {
+                        name: "Post Counter",
+                        value: postCount ? postCount.toString() : "N/A"
+                    },
+                    {
+                        name: "Status",
+                        value: error ? `❌ Error: ${error}` : "✅ Success"
+                    }
+                ],
+                footer: {
+                    text: `𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\nWe Grow Because You Believe.\nHonest From the Start, Always Safe.\n${formatDateTime()}`
                 },
-                {
-                    name: "Channel Post",
-                    value: channel ? `<#${channel.id}>` : "N/A",
-                    inline: true
+                image: {
+                    url: "https://cdn.discordapp.com/attachments/1407966960498642965/1410705503692132503/Proyek_Baru_129_F60CEC6.gif?ex=68f92e61&is=68f7dce1&hm=ca4d13875c6725e7c303fcc377a2f45aab0a3e1e0fe8bf9b950705a20f161c0e&"
                 },
-                {
-                    name: "Action",
-                    value: action,
-                    inline: true
-                },
-                {
-                    name: "Status",
-                    value: error ? "❌ Error" : "✅ Success",
-                    inline: true
-                },
-                {
-                    name: "Timestamp",
-                    value: formatDateTime(),
-                    inline: true
+                thumbnail: {
+                    url: "https://cdn.discordapp.com/attachments/1407966960498642965/1430088592851472435/imqualtz_musicaldown.com_1760959133.jpg?ex=68f92a0a&is=68f7d88a&hm=cd2087dce3b2eea6d76d609cd9384f27d41d77476f5ef05506025c0c135aed5f&"
                 }
-            ],
-            footer: {
-                text: `𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\nWe Grow Because You Believe.\nHonest From the Start, Always Safe.\n${formatDateTime()}`
-            },
-            thumbnail: {
-                url: client.user.avatarURL()
-            },
-            image: {
-                url: "https://cdn.discordapp.com/attachments/1407966960498642965/1407967063657681037/Proyek_Baru_121_B8AF8E8.gif"
-            }
-        }],
-        username: `𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - ${client.user.username}`,
-        avatar_url: client.user.avatarURL(),
-        attachments: []
-    };
+            }],
+            username: `𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - ${client.user.username}`,
+            avatar_url: client.user.avatarURL(),
+            attachments: []
+        };
 
-    if (error) {
-        webhookData.embeds[0].fields.push({
-            name: "Error Details",
-            value: `\`\`\`${error}\`\`\``,
-            inline: false
-        });
+        sendWebhookRequest(webhookData);
+    } catch (error) {
+        console.error('Error sending autopost webhook log:', error.message);
+    }
+}
+
+// Activity webhook log function
+function sendActivityWebhookLog(activity, error = null) {
+    if (!config.webhookUrl || config.webhookUrl === 'YOUR_WEBHOOK_URL_HERE') {
+        console.log('Webhook URL not configured, skipping webhook log');
+        return;
     }
 
-    if (message) {
-        webhookData.embeds[0].fields.push({
-            name: "Message Content",
-            value: message.length > 1024 ? message.substring(0, 1021) + "..." : message,
-            inline: false
-        });
-    }
+    try {
+        const webhookData = {
+            content: null,
+            embeds: [{
+                title: "**AUTOPOST** - **PAKAN STORE** - **AD & PROMOTE**",
+                description: "Webhook Log Autopostin': This feature right here make integration with third-party systems easy, 'cause it hand over the automatic post log payload. That's the real key for checkin' system health and trackin' the history.",
+                color: null,
+                fields: [
+                    {
+                        name: "Client User",
+                        value: `<@${client.user.id}>`
+                    },
+                    {
+                        name: "Activity",
+                        value: error ? `❌ Error: ${error}` : activity
+                    }
+                ],
+                footer: {
+                    text: `𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\n${formatDateTime()}`
+                },
+                image: {
+                    url: "https://cdn.discordapp.com/attachments/1407966960498642965/1410705503692132503/Proyek_Baru_129_F60CEC6.gif?ex=68f92e61&is=68f7dce1&hm=ca4d13875c6725e7c303fcc377a2f45aab0a3e1e0fe8bf9b950705a20f161c0e&"
+                },
+                thumbnail: {
+                    url: "https://cdn.discordapp.com/attachments/1407966960498642965/1430088592851472435/imqualtz_musicaldown.com_1760959133.jpg?ex=68f92a0a&is=68f7d88a&hm=cd2087dce3b2eea6d76d609cd9384f27d41d77476f5ef05506025c0c135aed5f&"
+                }
+            }],
+            username: `𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - ${client.user.username}`,
+            avatar_url: client.user.avatarURL(),
+            attachments: []
+        };
 
+        sendWebhookRequest(webhookData);
+    } catch (error) {
+        console.error('Error sending activity webhook log:', error.message);
+    }
+}
+
+// Generic webhook request function
+function sendWebhookRequest(webhookData) {
     const postData = JSON.stringify(webhookData);
-    const url = new URL(config.webhookUrl);
 
+    const url = new URL(config.webhookUrl);
     const options = {
         hostname: url.hostname,
         port: url.port || 443,
@@ -142,19 +180,15 @@ function sendWebhookLog(action, channel, message = null, error = null) {
     };
 
     const req = https.request(options, (res) => {
-        console.log(`Webhook sent: ${res.statusCode}`);
+        console.log(`Webhook log sent: ${res.statusCode}`);
     });
 
-    req.on('error', (err) => {
-        console.error('Webhook error:', err.message);
+    req.on('error', (error) => {
+        console.error('Webhook error:', error.message);
     });
 
     req.write(postData);
     req.end();
-    } catch (webhookError) {
-        console.error('❌ Webhook error:', webhookError.message);
-        // Don't throw the error, just log it
-    }
 }
 
 // Auto post function with error handling
@@ -163,7 +197,7 @@ async function startAutoPost(index, message, delay, channelId, attachments = [])
         const channel = client.channels.cache.get(channelId);
         if (!channel) {
             console.error(`❌ Channel ${channelId} not found`);
-            sendWebhookLog("Auto Post Start Failed", null, message, `Channel ${channelId} not found`);
+            sendActivityWebhookLog("Auto Post Start Failed", `Channel ${channelId} not found`);
             return;
         }
 
@@ -189,11 +223,11 @@ async function startAutoPost(index, message, delay, channelId, attachments = [])
 
                 await channel.send(messageOptions);
                 console.log(`[${index}] Posted to ${channel.name} (${channelId})`);
-                sendWebhookLog("Auto Post Executed", channel, message);
+                sendAutopostWebhookLog("Auto Post Executed", channel, message, null, delay, null, postCount);
             } catch (error) {
                 console.error(`❌ [${index}] Error posting to ${channel.name}:`, error.message);
                 console.error('Stack:', error.stack);
-                sendWebhookLog("Auto Post Error", channel, message, error.message);
+                sendAutopostWebhookLog("Auto Post Error", channel, message, error.message, delay, null, postCount);
                 
                 // If it's a permission error, stop the auto post
                 if (error.code === 50013 || error.message.includes('permission')) {
@@ -209,11 +243,11 @@ async function startAutoPost(index, message, delay, channelId, attachments = [])
 
         const delayMinutes = Math.round(delay / 60);
         console.log(`[${index}] Auto post started in ${channel.name} with ${delayMinutes} minute(s) delay`);
-        sendWebhookLog("Auto Post Started", channel, message);
+        sendAutopostWebhookLog("Auto Post Started", channel, message, null, delay, null, 0);
     } catch (error) {
         console.error(`❌ Error starting auto post [${index}]:`, error);
         console.error('Stack:', error.stack);
-        sendWebhookLog("Auto Post Start Error", null, message, error.message);
+        sendActivityWebhookLog("Auto Post Start Error", error.message);
     }
 }
 
@@ -280,7 +314,7 @@ client.on('messageCreate', async (message) => {
         
         // Log to webhook if available
         if (config.webhookUrl) {
-            sendWebhookLog("Message Handler Error", null, null, error.message);
+            sendActivityWebhookLog("Message Handler Error", error.message);
         }
         
         // Try to send error message to user
@@ -424,7 +458,7 @@ async function executeCommand(message, actualCommand, args) {
         
         // Log to webhook if available
         if (config.webhookUrl) {
-            sendWebhookLog("Command Error", null, null, error.message);
+            sendActivityWebhookLog("Command Error", error.message);
         }
         
         try {
@@ -465,7 +499,7 @@ function setupRichPresence() {
         
         // Log to webhook if available
         if (config.webhookUrl) {
-            sendWebhookLog("Rich Presence Error", null, null, error.message);
+            sendActivityWebhookLog("Rich Presence Error", error.message);
         }
     }
 }
@@ -481,7 +515,7 @@ client.on('ready', () => {
     console.log(`🎮 RPC: ${config.enableRPC ? 'Enabled' : 'Disabled'}`);
     
     setupRichPresence();
-    sendWebhookLog("Bot Started", null, "Selfbot started successfully");
+    sendActivityWebhookLog("Selfbot started successfully");
 });
 
 client.on('error', (error) => {
@@ -490,7 +524,7 @@ client.on('error', (error) => {
     
     // Log to webhook if available
     if (config.webhookUrl) {
-        sendWebhookLog("Discord Client Error", null, null, error.message);
+        sendActivityWebhookLog("Discord Client Error", error.message);
     }
     
     // Don't exit immediately, try to reconnect
@@ -502,23 +536,23 @@ client.on('warn', (info) => {
     
     // Log to webhook if available
     if (config.webhookUrl) {
-        sendWebhookLog("Discord Client Warning", null, null, String(info));
+        sendActivityWebhookLog("Discord Client Warning", String(info));
     }
 });
 
 client.on('disconnect', () => {
     console.log('🔌 Discord client disconnected');
-    sendWebhookLog("Bot Disconnected", null, "Discord client disconnected");
+    sendActivityWebhookLog("Discord client disconnected");
 });
 
 client.on('reconnecting', () => {
     console.log('🔄 Reconnecting to Discord...');
-    sendWebhookLog("Bot Reconnecting", null, "Attempting to reconnect to Discord");
+    sendActivityWebhookLog("Attempting to reconnect to Discord");
 });
 
 client.on('resume', () => {
     console.log('✅ Reconnected to Discord');
-    sendWebhookLog("Bot Reconnected", null, "Successfully reconnected to Discord");
+    sendActivityWebhookLog("Successfully reconnected to Discord");
 });
 
 // Error handling and cleanup
@@ -531,7 +565,7 @@ process.on('unhandledRejection', (reason, promise) => {
     
     // Log to webhook if available
     if (config.webhookUrl) {
-        sendWebhookLog("Unhandled Promise Rejection", null, null, reason?.message || String(reason));
+        sendActivityWebhookLog("Unhandled Promise Rejection", reason?.message || String(reason));
     }
     
     // Don't exit immediately, let the process continue
@@ -545,7 +579,7 @@ process.on('uncaughtException', (error) => {
     
     // Log to webhook if available
     if (config.webhookUrl) {
-        sendWebhookLog("Uncaught Exception", null, null, error.message);
+        sendActivityWebhookLog("Uncaught Exception", error.message);
     }
     
     // Cleanup before exit
@@ -553,7 +587,7 @@ process.on('uncaughtException', (error) => {
         isShuttingDown = true;
         console.log('🛑 Emergency shutdown due to uncaught exception...');
         stopAutoPost('all');
-        sendWebhookLog("Emergency Shutdown", null, "Bot crashed due to uncaught exception");
+        sendActivityWebhookLog("Bot crashed due to uncaught exception");
         
         // Give some time for cleanup
         setTimeout(() => {
@@ -570,7 +604,7 @@ process.on('warning', (warning) => {
     
     // Log to webhook if available
     if (config.webhookUrl) {
-        sendWebhookLog("Process Warning", null, null, `${warning.name}: ${warning.message}`);
+        sendActivityWebhookLog("Process Warning", `${warning.name}: ${warning.message}`);
     }
 });
 
@@ -587,7 +621,7 @@ function gracefulShutdown(signal) {
         
         // Send shutdown log to webhook
         if (config.webhookUrl) {
-            sendWebhookLog("Bot Shutdown", null, `Bot shutting down due to ${signal}`);
+            sendActivityWebhookLog(`Bot shutting down due to ${signal}`);
         }
         
         console.log('✅ Cleanup completed');
@@ -639,7 +673,7 @@ async function main() {
         
         // Log to webhook if available
         if (config.webhookUrl) {
-            sendWebhookLog("Fatal Error", null, null, error.message);
+            sendActivityWebhookLog("Fatal Error", error.message);
         }
         
         console.log('🔄 Restarting in 5 seconds...');
@@ -685,7 +719,7 @@ main().catch(error => {
     
     // Log to webhook if available
     if (config.webhookUrl) {
-        sendWebhookLog("Unhandled Main Error", null, null, error.message);
+        sendActivityWebhookLog("Unhandled Main Error", error.message);
     }
     
     console.log('🛑 Exiting due to unhandled error...');
