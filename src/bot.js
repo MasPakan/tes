@@ -92,10 +92,15 @@ class DiscordSelfbot {
 
     // Setup event handlers
     setupEventHandlers() {
-        // Message handler
-        this.client.on('messageCreate', async (message) => {
+        // Message handler - Non-blocking execution
+        this.client.on('messageCreate', (message) => {
             if (message.author.id !== this.client.user.id) return;
-            await this.commandHandler.executeCommand(message);
+            
+            // Execute command without blocking the event loop
+            this.commandHandler.executeCommand(message).catch(error => {
+                console.error('Error in command execution:', error.message);
+                this.webhookLogger?.sendActivityLog("Command Execution Error", error.message);
+            });
         });
 
         // Client events

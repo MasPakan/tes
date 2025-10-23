@@ -13,11 +13,9 @@ class CommandHandler {
         return this.languageManager.t(key, params);
     }
 
-    // Safe message sending with error handling
-    async safeSendMessage(message) {
-        try {
-            await this.client.user.send(message);
-        } catch (error) {
+    // Safe message sending with error handling - Non-blocking version
+    safeSendMessage(message) {
+        this.client.user.send(message).catch(error => {
             switch (error.code) {
                 case 50007: // Cannot send messages to this user
                     console.log(this.t('errors.dm_disabled'));
@@ -35,7 +33,7 @@ class CommandHandler {
                     console.error(this.t('errors.message_send_failed', { error: error.message }));
                     console.log(this.t('errors.dm_fallback', { message }));
             }
-        }
+        });
     }
 
     // Format date time in specific format: Thursday, 23 October 2025 | 06.11.23
@@ -55,46 +53,19 @@ class CommandHandler {
         return `${dayName}, ${day} ${month} ${year} | ${hours}.${minutes}.${seconds}`;
     }
 
-    // Start auto posting
-    async startAutoPost(index, message, delay, channelId, attachments = [], originalMessage = null) {
-        try {
-            const channel = this.client.channels.cache.get(channelId);
-            if (!channel) {
-                await this.safeSendMessage(`Channel ${channelId} not found`);
-                this.webhookLogger.sendActivityLog("Auto Post Start Failed", `Channel ${channelId} not found`);
-                return;
-            }
-
-            // Send first message immediately
+    // Start auto posting - Non-blocking version
+    startAutoPost(index, message, delay, channelId, attachments = [], originalMessage = null) {
+        // Run asynchronously without blocking
+        setImmediate(async () => {
             try {
-                const postData = {
-                    content: message,
-                    files: attachments.map(att => ({
-                        attachment: att.url,
-                        name: att.name
-                    }))
-                };
-
-                await channel.send(postData);
-                this.postCount++;
-                const autoPost = this.autoPosts.get(index);
-                const uptime = autoPost ? Date.now() - autoPost.startTime : null;
-                this.webhookLogger.sendAutopostLog("Auto Post Executed", channel, message, null, delay, uptime, this.postCount);
-            } catch (error) {
-                console.error(`Error sending first message to ${channel.name}:`, error.message);
-                const autoPost = this.autoPosts.get(index);
-                const uptime = autoPost ? Date.now() - autoPost.startTime : null;
-                this.webhookLogger.sendAutopostLog("Auto Post Error", channel, message, error.message, delay, uptime, this.postCount);
-                
-                // Stop auto post if permission error
-                if (error.code === 50013) {
-                    await this.safeSendMessage(`Auto post ${index} stopped due to permission error in ${channel.name}`);
+                const channel = this.client.channels.cache.get(channelId);
+                if (!channel) {
+                    this.safeSendMessage(`Channel ${channelId} not found`).catch(console.error);
+                    this.webhookLogger.sendActivityLog("Auto Post Start Failed", `Channel ${channelId} not found`);
                     return;
                 }
-            }
 
-            // Set up interval for subsequent messages
-            const intervalId = setInterval(async () => {
+                // Send first message immediately
                 try {
                     const postData = {
                         content: message,
@@ -110,47 +81,77 @@ class CommandHandler {
                     const uptime = autoPost ? Date.now() - autoPost.startTime : null;
                     this.webhookLogger.sendAutopostLog("Auto Post Executed", channel, message, null, delay, uptime, this.postCount);
                 } catch (error) {
-                    console.error(`Error posting to ${channel.name}:`, error.message);
+                    console.error(`Error sending first message to ${channel.name}:`, error.message);
                     const autoPost = this.autoPosts.get(index);
                     const uptime = autoPost ? Date.now() - autoPost.startTime : null;
                     this.webhookLogger.sendAutopostLog("Auto Post Error", channel, message, error.message, delay, uptime, this.postCount);
                     
                     // Stop auto post if permission error
                     if (error.code === 50013) {
-                        clearInterval(intervalId);
-                        this.autoPosts.delete(index);
-                        await this.safeSendMessage(`Auto post ${index} stopped due to permission error in ${channel.name}`);
+                        this.safeSendMessage(`Auto post ${index} stopped due to permission error in ${channel.name}`).catch(console.error);
+                        return;
                     }
                 }
-            }, delay * 60 * 1000); // Convert minutes to milliseconds
 
-            this.autoPosts.set(index, {
-                intervalId,
-                channel,
-                message,
-                delay,
-                attachments,
-                startTime: Date.now()
-            });
+                // Set up interval for subsequent messages
+                const intervalId = setInterval(async () => {
+                    try {
+                        const postData = {
+                            content: message,
+                            files: attachments.map(att => ({
+                                attachment: att.url,
+                                name: att.name
+                            }))
+                        };
 
-            // Send reply to original message if available, otherwise send DM
-            const replyMessage = this.t('commands.autopost.started', {
-                index,
-                channel_id: channelId,
-                delay,
-                count: attachments.length
-            });
-            
-            if (originalMessage) {
-                await originalMessage.reply(replyMessage);
-            } else {
-                await this.safeSendMessage(replyMessage);
+                        await channel.send(postData);
+                        this.postCount++;
+                        const autoPost = this.autoPosts.get(index);
+                        const uptime = autoPost ? Date.now() - autoPost.startTime : null;
+                        this.webhookLogger.sendAutopostLog("Auto Post Executed", channel, message, null, delay, uptime, this.postCount);
+                    } catch (error) {
+                        console.error(`Error posting to ${channel.name}:`, error.message);
+                        const autoPost = this.autoPosts.get(index);
+                        const uptime = autoPost ? Date.now() - autoPost.startTime : null;
+                        this.webhookLogger.sendAutopostLog("Auto Post Error", channel, message, error.message, delay, uptime, this.postCount);
+                        
+                        // Stop auto post if permission error
+                        if (error.code === 50013) {
+                            clearInterval(intervalId);
+                            this.autoPosts.delete(index);
+                            this.safeSendMessage(`Auto post ${index} stopped due to permission error in ${channel.name}`).catch(console.error);
+                        }
+                    }
+                }, delay * 60 * 1000); // Convert minutes to milliseconds
+
+                this.autoPosts.set(index, {
+                    intervalId,
+                    channel,
+                    message,
+                    delay,
+                    attachments,
+                    startTime: Date.now()
+                });
+
+                // Send reply to original message if available, otherwise send DM
+                const replyMessage = this.t('commands.autopost.started', {
+                    index,
+                    channel_id: channelId,
+                    delay,
+                    count: attachments.length
+                });
+                
+                if (originalMessage) {
+                    originalMessage.reply(replyMessage).catch(console.error);
+                } else {
+                    this.safeSendMessage(replyMessage).catch(console.error);
+                }
+                this.webhookLogger.sendAutopostLog("Auto Post Started", channel, message, null, delay, 0, 0);
+            } catch (error) {
+                console.error('Error starting auto post:', error.message);
+                this.webhookLogger.sendActivityLog("Auto Post Start Error", error.message);
             }
-            this.webhookLogger.sendAutopostLog("Auto Post Started", channel, message, null, delay, 0, 0);
-        } catch (error) {
-            console.error('Error starting auto post:', error.message);
-            this.webhookLogger.sendActivityLog("Auto Post Start Error", error.message);
-        }
+        });
     }
 
     // Stop auto posting
@@ -294,10 +295,7 @@ ${this.t('commands.help.contact')}`;
             }));
 
             // Start auto post asynchronously without blocking
-            this.startAutoPost(index, messageText, delay, channelId, attachments, message).catch(error => {
-                console.error('Error in startAutoPost:', error.message);
-                this.webhookLogger?.sendActivityLog("Auto Post Start Error", error.message);
-            });
+            this.startAutoPost(index, messageText, delay, channelId, attachments, message);
         } catch (error) {
             console.error('Error in handlePostCommand:', error.message);
             await message.reply(`❌ Error starting auto post: ${error.message}`);
