@@ -16,14 +16,24 @@ class DiscordSelfbotCLI {
 
     loadLanguageSettings() {
         try {
+            // Ensure config directory exists
+            const configDir = path.dirname(this.configFile);
+            if (!fs.existsSync(configDir)) {
+                fs.mkdirSync(configDir, { recursive: true });
+            }
+
             if (fs.existsSync(this.configFile)) {
                 const data = fs.readFileSync(this.configFile, 'utf8');
                 const config = JSON.parse(data);
                 const language = config.settings?.language || 'en';
                 this.languageManager.setLanguage(language);
+            } else {
+                // File doesn't exist, use default language
+                this.languageManager.setLanguage('en');
             }
         } catch (error) {
-            console.error('Error loading language settings:', error.message);
+            console.error('❌ Error loading language settings:', error.message);
+            this.languageManager.setLanguage('en');
         }
     }
 
@@ -73,10 +83,33 @@ class DiscordSelfbotCLI {
 
     loadAccounts() {
         try {
-            const data = fs.readFileSync(this.configFile, 'utf8');
-            const config = JSON.parse(data);
-            return config.accounts || {};
+            // Ensure config directory exists
+            const configDir = path.dirname(this.configFile);
+            if (!fs.existsSync(configDir)) {
+                fs.mkdirSync(configDir, { recursive: true });
+            }
+
+            if (fs.existsSync(this.configFile)) {
+                const data = fs.readFileSync(this.configFile, 'utf8');
+                const config = JSON.parse(data);
+                return config.accounts || {};
+            } else {
+                // File doesn't exist, create it with default config
+                console.log('📁 Config file not found, creating default configuration...');
+                const defaultConfig = {
+                    accounts: {},
+                    settings: {
+                        defaultPrefix: "!",
+                        defaultRPC: true,
+                        defaultWebhook: false,
+                        language: "en"
+                    }
+                };
+                fs.writeFileSync(this.configFile, JSON.stringify(defaultConfig, null, 2));
+                return {};
+            }
         } catch (error) {
+            console.error('❌ Error loading accounts:', error.message);
             return {};
         }
     }
@@ -89,12 +122,29 @@ class DiscordSelfbotCLI {
                 fs.mkdirSync(configDir, { recursive: true });
             }
             
+            // Check if config file exists, if not create it
+            if (!fs.existsSync(this.configFile)) {
+                console.log('📁 Config file not found, creating default configuration...');
+                const defaultConfig = {
+                    accounts: {},
+                    settings: {
+                        defaultPrefix: "!",
+                        defaultRPC: true,
+                        defaultWebhook: false,
+                        language: "en"
+                    }
+                };
+                fs.writeFileSync(this.configFile, JSON.stringify(defaultConfig, null, 2));
+            }
+            
             const data = fs.readFileSync(this.configFile, 'utf8');
             const config = JSON.parse(data);
             config.accounts = accounts;
             fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2));
+            console.log('✅ Accounts saved successfully');
         } catch (error) {
-            console.error('Error saving accounts:', error.message);
+            console.error('❌ Error saving accounts:', error.message);
+            throw error;
         }
     }
 
@@ -319,13 +369,30 @@ class DiscordSelfbotCLI {
                 fs.mkdirSync(configDir, { recursive: true });
             }
             
+            // Check if config file exists, if not create it
+            if (!fs.existsSync(this.configFile)) {
+                console.log('📁 Config file not found, creating default configuration...');
+                const defaultConfig = {
+                    accounts: {},
+                    settings: {
+                        defaultPrefix: "!",
+                        defaultRPC: true,
+                        defaultWebhook: false,
+                        language: "en"
+                    }
+                };
+                fs.writeFileSync(this.configFile, JSON.stringify(defaultConfig, null, 2));
+            }
+            
             const data = fs.readFileSync(this.configFile, 'utf8');
             const config = JSON.parse(data);
             if (!config.settings) config.settings = {};
             config.settings.language = language;
             fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2));
+            console.log('✅ Language setting updated successfully');
         } catch (error) {
-            console.error('Error updating language setting:', error.message);
+            console.error('❌ Error updating language setting:', error.message);
+            throw error;
         }
     }
 
