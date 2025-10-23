@@ -1,6 +1,6 @@
 # 🤖 Discord Selfbot Automation
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/MasPakan/tes)
+[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/MasPakan/tes)
 [![Node.js](https://img.shields.io/badge/node.js-16+-green.svg)](https://nodejs.org/)
 [![Language](https://img.shields.io/badge/language-EN%20%7C%20ID-orange.svg)](https://github.com/MasPakan/tes)
 [![Discord](https://img.shields.io/badge/discord-join-7289da.svg?logo=discord&logoColor=white)](https://discord.gg/8wM2tNhUdB)
@@ -24,18 +24,19 @@ npm start
 | Feature | Description | Status |
 |---------|-------------|--------|
 | 🌍 **Multi-Language** | English & Indonesian support | ✅ |
-| 🤖 **Auto Posting** | Multi-channel with custom delay | ✅ |
+| 🤖 **Auto Posting** | Multi-channel with immediate execution | ✅ |
 | 🎮 **Rich Presence** | Custom RPC with your style | ✅ |
-| 📊 **Webhook Logs** | Detailed activity logging | ✅ |
+| 📊 **Webhook Logs** | Detailed activity logging with uptime | ✅ |
 | 🛡️ **Error Recovery** | Smart retry with circuit breaker | ✅ |
 | 👥 **Multi-Account** | Manage multiple Discord accounts | ✅ |
 | 🔄 **Auto Updates** | Check and update automatically | ✅ |
+| ⚡ **Immediate Posts** | First message sent instantly | ✅ |
 
 ## 🎯 Commands
 
 | Command | What it does | Example |
 |---------|--------------|---------|
-| `!post` | Start auto posting | `!post 1 "Hello!" 5 123456789` |
+| `!post` | Start auto posting (sends immediately) | `!post 1 "Hello!" 5 123456789` |
 | `!index` | List active posts | `!index` |
 | `!stop` | Stop posting | `!stop 1` or `!stop` |
 | `!ping` | Check latency | `!ping` |
@@ -48,6 +49,28 @@ Choose your language during setup:
 - 🇮🇩 **Indonesian** (Bahasa Indonesia)
 
 Switch languages anytime by reconfiguring your account.
+
+## ⚡ What's New in v1.2.0
+
+### 🚀 Immediate Post Execution
+- **Before**: `!post` command waited for delay before sending first message
+- **Now**: First message sent immediately, delay only applies to repeats
+- **Example**: `!post 1 "Hello!" 5 123456789` sends "Hello!" right away, then every 5 minutes
+
+### ⏱️ Enhanced Uptime Display
+- **Format**: `HH.MM.SS` (hours.minutes.seconds)
+- **Real-time**: Updates automatically in webhook logs
+- **Example**: `01.30.45` = 1 hour 30 minutes 45 seconds
+
+### 🛡️ Better Error Handling
+- **DM Errors**: Graceful handling when users block DMs
+- **Fallback**: Console logging when DMs fail
+- **Recovery**: Smart retry with exponential backoff
+
+### 🌍 Localized Webhook Logs
+- **Activity Logs**: Now use your selected language
+- **Autopost Logs**: Keep original format for compatibility
+- **Consistent**: All logs respect your language preference
 
 ## 🛠️ Configuration
 

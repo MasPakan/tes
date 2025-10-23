@@ -24,6 +24,23 @@ npm start
 
 **That's it!** The interactive CLI will handle everything else.
 
+## ⚡ What's New in v1.2.0
+
+### 🚀 Immediate Post Execution
+- Commands now send first message immediately
+- No more waiting for delay to see results
+- Better user experience and feedback
+
+### ⏱️ Enhanced Uptime Display
+- Real-time uptime in `HH.MM.SS` format
+- Automatic calculation in webhook logs
+- Better monitoring capabilities
+
+### 🛡️ Improved Error Handling
+- Graceful DM error handling
+- Console fallback when DMs fail
+- Better error recovery system
+
 ## 🎯 First Time Setup
 
 When you run `npm start` for the first time:

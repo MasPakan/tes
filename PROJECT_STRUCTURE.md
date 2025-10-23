@@ -41,8 +41,8 @@ tes/
 | **main.js** | Entry point | Simple startup |
 | **bot.js** | Main logic | Client management, orchestration |
 | **cli.js** | User interface | Interactive menus, account management |
-| **commands.js** | Bot commands | Auto posting, help system |
-| **webhook.js** | Logging | Activity logs, error tracking |
+| **commands.js** | Bot commands | Auto posting, immediate execution, help system |
+| **webhook.js** | Logging | Activity logs, uptime formatting, error tracking |
 | **language.js** | Translations | Multi-language support |
 | **errorRecovery.js** | Error handling | Circuit breaker, retry logic |
 | **manager.js** | Configuration | Settings, account management |

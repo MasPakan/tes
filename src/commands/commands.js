@@ -56,7 +56,7 @@ class CommandHandler {
     }
 
     // Start auto posting
-    async startAutoPost(index, message, delay, channelId, attachments = []) {
+    async startAutoPost(index, message, delay, channelId, attachments = [], originalMessage = null) {
         try {
             const channel = this.client.channels.cache.get(channelId);
             if (!channel) {
@@ -133,12 +133,19 @@ class CommandHandler {
                 startTime: Date.now()
             });
 
-            await this.safeSendMessage(this.t('commands.autopost.started', {
+            // Send reply to original message if available, otherwise send DM
+            const replyMessage = this.t('commands.autopost.started', {
                 index,
                 channel_id: channelId,
                 delay,
                 count: attachments.length
-            }));
+            });
+            
+            if (originalMessage) {
+                await originalMessage.reply(replyMessage);
+            } else {
+                await this.safeSendMessage(replyMessage);
+            }
             this.webhookLogger.sendAutopostLog("Auto Post Started", channel, message, null, delay, 0, 0);
         } catch (error) {
             console.error('Error starting auto post:', error.message);
@@ -247,7 +254,7 @@ ${this.t('commands.help.contact')}`;
                         name: att.name
                     }));
 
-                    await this.startAutoPost(index, messageText, delay, channelId, attachments);
+                    await this.startAutoPost(index, messageText, delay, channelId, attachments, message);
                     break;
 
                 case 'index':

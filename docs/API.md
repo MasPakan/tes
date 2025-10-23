@@ -21,6 +21,12 @@ Quick reference for Discord Selfbot Automation modules and commands.
 ```
 **Example**: `!post 1 "Hello World!" 5 123456789012345678`
 
+**Behavior**:
+- ✅ First message sent immediately
+- ⏱️ Subsequent messages sent every `delay_minutes`
+- 📎 Supports file attachments
+- 📊 Logs to webhook with uptime
+
 ### Management
 ```bash
 !index          # List active posts

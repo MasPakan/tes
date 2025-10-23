@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2025-10-23
+
+### ✨ New Features
+- [x] **Immediate Post Execution** - `!post` command now sends message immediately
+- [x] **Uptime Formatting** - HH.MM.SS format for webhook logs
+- [x] **Enhanced Error Handling** - Better DM error handling with fallback
+- [x] **Reply System** - Commands now reply to original message
+
+### 🔧 Improvements
+- [x] **Auto Post Timing** - First message sent immediately, delay only for repeats
+- [x] **Webhook Logs** - Activity logs now use localized language
+- [x] **Uptime Display** - Real-time uptime calculation in webhook logs
+- [x] **Message Delivery** - Improved message delivery with error recovery
+- [x] **User Experience** - Better feedback for command execution
+
+### 🐛 Fixes
+- [x] **Config Directory** - Auto-creation of config directory
+- [x] **DM Errors** - Fixed "Cannot send messages to this user" error
+- [x] **Uptime Calculation** - Fixed uptime display in webhook logs
+- [x] **Command Output** - Fixed missing output for `!post` command
+- [x] **Language Integration** - Fixed webhook activity log localization
+
+### 📊 Technical Details
+
+#### Immediate Post Execution
+- **Change**: `!post` now sends first message immediately
+- **Implementation**: Separate immediate send before interval setup
+- **Benefit**: Users see immediate results
+
+#### Uptime Formatting
+- **Format**: `HH.MM.SS` (hours.minutes.seconds)
+- **Calculation**: `Date.now() - startTime`
+- **Display**: Real-time in webhook logs
+
+#### Enhanced Error Handling
+- **DM Errors**: Graceful handling of blocked/disabled DMs
+- **Fallback**: Console logging when DMs fail
+- **Recovery**: Automatic retry with exponential backoff
+
+---
+
 ## [1.1.0] - 2025-10-23
 
 ### ✨ New Features
