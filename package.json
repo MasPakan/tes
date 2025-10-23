@@ -2,10 +2,13 @@
   "name": "discord-selfbot-automation",
   "version": "1.0.0",
   "description": "Discord selfbot with auto posting, RPC, and webhook logging features",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node index.js",
-    "update": "node update.js"
+    "start": "node main.js",
+    "update": "node src/utils/update.js",
+    "dev": "node main.js",
+    "cli": "node src/cli/cli.js",
+    "bot": "node src/bot.js"
   },
   "dependencies": {
     "chalk": "^4.1.2",

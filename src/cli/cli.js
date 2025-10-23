@@ -199,7 +199,7 @@ class DiscordSelfbotCLI {
                     }
                     return true;
                 }
-            });
+            }]);
             token = userToken;
         }
 
