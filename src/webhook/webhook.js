@@ -100,21 +100,21 @@ class WebhookLogger {
             const webhookData = {
                 content: null,
                 embeds: [{
-                    title: "**AUTOPOST** - **PAKAN STORE** - **AD & PROMOTE**",
-                    description: "Webhook Log Autopostin': This feature right here make integration with third-party systems easy, 'cause it hand over the automatic post log payload. That's the real key for checkin' system health and trackin' the history.",
+                    title: this.t('webhook.activity.title'),
+                    description: this.t('webhook.activity.description'),
                     color: null,
                     fields: [
                         {
-                            name: "Client User",
+                            name: this.t('webhook.activity.fields.client_user'),
                             value: `<@${this.config.clientId}>`
                         },
                         {
-                            name: "Activity",
-                            value: error ? `❌ Error: ${error}` : activity
+                            name: this.t('webhook.activity.fields.activity'),
+                            value: error ? `${this.t('common.error')}: ${error}` : activity
                         }
                     ],
                     footer: {
-                        text: `𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\n${this.formatDateTime()}`
+                        text: this.t('webhook.activity.footer', { datetime: this.formatDateTime() })
                     },
                     image: {
                         url: "https://cdn.discordapp.com/attachments/1407966960498642965/1410705503692132503/Proyek_Baru_129_F60CEC6.gif?ex=68f92e61&is=68f7dce1&hm=ca4d13875c6725e7c303fcc377a2f45aab0a3e1e0fe8bf9b950705a20f161c0e&"
@@ -123,7 +123,7 @@ class WebhookLogger {
                         url: "https://cdn.discordapp.com/attachments/1407966960498642965/1430088592851472435/imqualtz_musicaldown.com_1760959133.jpg?ex=68f92a0a&is=68f7d88a&hm=cd2087dce3b2eea6d76d609cd9384f27d41d77476f5ef05506025c0c135aed5f&"
                     }
                 }],
-                username: `𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - ${this.config.username}`,
+                username: this.t('webhook.activity.username', { username: this.config.username }),
                 avatar_url: this.config.avatarUrl,
                 attachments: []
             };

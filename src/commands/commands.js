@@ -65,6 +65,31 @@ class CommandHandler {
                 return;
             }
 
+            // Send first message immediately
+            try {
+                const postData = {
+                    content: message,
+                    files: attachments.map(att => ({
+                        attachment: att.url,
+                        name: att.name
+                    }))
+                };
+
+                await channel.send(postData);
+                this.postCount++;
+                this.webhookLogger.sendAutopostLog("Auto Post Executed", channel, message, null, delay, null, this.postCount);
+            } catch (error) {
+                console.error(`Error sending first message to ${channel.name}:`, error.message);
+                this.webhookLogger.sendAutopostLog("Auto Post Error", channel, message, error.message, delay, null, this.postCount);
+                
+                // Stop auto post if permission error
+                if (error.code === 50013) {
+                    await this.safeSendMessage(`Auto post ${index} stopped due to permission error in ${channel.name}`);
+                    return;
+                }
+            }
+
+            // Set up interval for subsequent messages
             const intervalId = setInterval(async () => {
                 try {
                     const postData = {
