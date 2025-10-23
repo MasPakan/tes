@@ -1,6 +1,6 @@
 # Project Structure
 
-This document describes the modular structure of the Discord Selfbot Automation project.
+This document describes the modular structure of the Discord Selfbot Automation project with multi-language support and advanced error recovery.
 
 ## Directory Structure
 
@@ -8,10 +8,13 @@ This document describes the modular structure of the Discord Selfbot Automation 
 /workspace/
 ├── main.js                    # Main entry point
 ├── package.json               # Dependencies and scripts
-├── ihannsy.json              # Configuration storage (auto-created)
+├── .gitignore                 # Git ignore rules
+├── .gitattributes             # Git attributes
 ├── README.md                 # Project documentation
 ├── CHANGELOG.md              # Change log
 ├── PROJECT_STRUCTURE.md      # This file
+├── config/                   # Configuration directory
+│   └── ihannsy.json         # Configuration storage (auto-created)
 ├── src/                      # Source code directory
 │   ├── bot.js               # Main bot class and orchestration
 │   ├── cli/                 # CLI module
@@ -22,12 +25,20 @@ This document describes the modular structure of the Discord Selfbot Automation 
 │   │   └── webhook.js      # Webhook logging system
 │   ├── config/              # Configuration module
 │   │   └── manager.js      # Configuration management
-│   └── utils/               # Utility modules
-│       ├── update.js       # Repository update system
-│       └── rpc.js          # Rich Presence management
-├── lib/                      # Library files (if needed)
+│   ├── utils/               # Utility modules
+│   │   ├── language.js     # Language management system
+│   │   ├── errorRecovery.js # Advanced error recovery system
+│   │   ├── update.js       # Repository update system
+│   │   └── rpc.js          # Rich Presence management
+│   └── locales/             # Language files
+│       ├── en.json         # English translations
+│       └── id.json         # Indonesian translations
 ├── docs/                     # Documentation files
+│   ├── INSTALLATION.md      # Installation guide
+│   └── API.md              # API documentation
 ├── examples/                 # Example configurations
+│   ├── config-example.json  # Configuration example
+│   └── README.md           # Examples guide
 └── backup/                   # Backup files (auto-created)
 ```
 
@@ -44,40 +55,45 @@ This document describes the modular structure of the Discord Selfbot Automation 
 - **Purpose**: Main bot orchestration and lifecycle management
 - **Dependencies**: All other modules
 - **Functions**:
-  - Initialize Discord client
-  - Setup event handlers
+  - Initialize Discord client with language support
+  - Setup event handlers with error recovery
   - Manage bot lifecycle
   - Handle global error handlers
   - Coordinate between modules
+  - Setup advanced error recovery system
 
 ### Feature Modules
 
 #### `src/cli/cli.js`
 - **Purpose**: Interactive command-line interface
-- **Dependencies**: `inquirer`, `chalk`, `src/utils/update.js`
+- **Dependencies**: `inquirer`, `chalk`, `src/utils/update.js`, `src/utils/language.js`
 - **Functions**:
   - Welcome screen with ASCII art
   - Account management (create, configure, remove)
-  - Configuration wizard
+  - Configuration wizard with language selection
   - Update checking
+  - Language selection and switching
+  - Localized CLI messages
 
 #### `src/commands/commands.js`
 - **Purpose**: Bot command handling and execution
-- **Dependencies**: `src/webhook/webhook.js`
+- **Dependencies**: `src/webhook/webhook.js`, `src/utils/language.js`
 - **Functions**:
   - Command parsing and execution
   - Auto post management
-  - Help system
+  - Help system with localized content
   - Ping functionality
+  - Localized command responses
 
 #### `src/webhook/webhook.js`
 - **Purpose**: Webhook logging system
-- **Dependencies**: `https` (Node.js built-in)
+- **Dependencies**: `https` (Node.js built-in), `src/utils/language.js`
 - **Functions**:
-  - Autopost webhook logging
-  - Activity webhook logging
+  - Autopost webhook logging with localized content
+  - Activity webhook logging with localized content
   - Date/time formatting
   - Webhook request handling
+  - Localized webhook messages
 
 #### `src/config/manager.js`
 - **Purpose**: Configuration management
@@ -90,26 +106,48 @@ This document describes the modular structure of the Discord Selfbot Automation 
 
 ### Utility Modules
 
+#### `src/utils/language.js`
+- **Purpose**: Language management system
+- **Dependencies**: `fs`, `path` (Node.js built-in)
+- **Functions**:
+  - Load language files
+  - Dynamic language switching
+  - Parameter interpolation
+  - Language validation
+  - Fallback to English
+  - Runtime language addition
+
+#### `src/utils/errorRecovery.js`
+- **Purpose**: Advanced error recovery system
+- **Dependencies**: `events` (Node.js built-in)
+- **Functions**:
+  - Exponential backoff with jitter
+  - Circuit breaker pattern
+  - Discord-specific error strategies
+  - Event-driven recovery
+  - Graceful degradation
+  - Recovery action system
+
 #### `src/utils/update.js`
 - **Purpose**: Repository update system
-- **Dependencies**: `https`, `fs`, `path`, `chalk`, `inquirer`
+- **Dependencies**: `https`, `fs`, `path`, `chalk`, `inquirer`, `src/utils/language.js`
 - **Functions**:
   - Check for repository updates
   - Download and apply updates
-  - Update prompt handling
+  - Localized update prompt handling
   - Backup creation
 
 #### `src/utils/rpc.js`
 - **Purpose**: Rich Presence management
-- **Dependencies**: `discord.js-selfbot-v13`
+- **Dependencies**: `discord.js-selfbot-v13`, `src/utils/language.js`
 - **Functions**:
-  - Setup Rich Presence
+  - Setup Rich Presence with localized messages
   - Update RPC configuration
   - Enable/disable RPC
 
 ## Configuration Files
 
-### `ihannsy.json`
+### `config/ihannsy.json`
 - **Purpose**: Main configuration storage
 - **Structure**:
   ```json
@@ -121,6 +159,7 @@ This document describes the modular structure of the Discord Selfbot Automation 
         "prefix": "!",
         "enableRPC": true,
         "username": "username",
+        "language": "en",
         "createdAt": "2024-01-01T00:00:00.000Z",
         "lastUsed": "2024-01-01T00:00:00.000Z"
       }
@@ -128,10 +167,23 @@ This document describes the modular structure of the Discord Selfbot Automation 
     "settings": {
       "defaultPrefix": "!",
       "defaultRPC": true,
-      "defaultWebhook": false
+      "defaultWebhook": false,
+      "language": "en"
     }
   }
   ```
+
+### Language Files
+
+#### `src/locales/en.json`
+- **Purpose**: English translations
+- **Structure**: Nested JSON with translation keys
+- **Usage**: Fallback language and default translations
+
+#### `src/locales/id.json`
+- **Purpose**: Indonesian translations
+- **Structure**: Nested JSON with translation keys
+- **Usage**: Indonesian language support
 
 ## Scripts
 
@@ -175,12 +227,20 @@ This document describes the modular structure of the Discord Selfbot Automation 
 main.js
 └── src/bot.js
     ├── src/cli/cli.js
-    │   └── src/utils/update.js
+    │   ├── src/utils/update.js
+    │   └── src/utils/language.js
     ├── src/commands/commands.js
-    │   └── src/webhook/webhook.js
+    │   ├── src/webhook/webhook.js
+    │   └── src/utils/language.js
     ├── src/webhook/webhook.js
+    │   └── src/utils/language.js
     ├── src/config/manager.js
-    └── src/utils/rpc.js
+    ├── src/utils/language.js
+    ├── src/utils/errorRecovery.js
+    ├── src/utils/rpc.js
+    │   └── src/utils/language.js
+    └── src/utils/update.js
+        └── src/utils/language.js
 ```
 
 ## Adding New Modules

@@ -5,6 +5,152 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2024-01-15
+
+### Added
+- [x] **Multi-Language Support** - Complete English and Indonesian language support
+- [x] **Language Manager** - Dynamic language switching and parameter interpolation
+- [x] **Advanced Error Recovery** - Exponential backoff with circuit breaker pattern
+- [x] **Discord-Specific Error Strategies** - Network, rate limit, auth, and permission error handling
+- [x] **Event-Driven Recovery** - Recovery system with comprehensive event logging
+- [x] **Language Files** - Complete translation files for all user-facing content
+- [x] **Runtime Language Switching** - Change language without restarting
+- [x] **Jitter Implementation** - Prevents thundering herd problem in retry logic
+- [x] **Recovery Action System** - Wait, retry, reconnect, refresh token, clear cache actions
+- [x] **Circuit Breaker Pattern** - Prevents spam retries on repeated failures
+- [x] **Localized CLI** - All CLI messages in selected language
+- [x] **Localized Commands** - All bot command responses in selected language
+- [x] **Localized Webhooks** - Webhook content in selected language
+- [x] **Language Validation** - Validate language completeness and missing keys
+- [x] **Modular Architecture** - Complete restructuring into organized modules
+- [x] **Configuration Manager** - Centralized configuration management
+- [x] **Error Recovery Manager** - Centralized error handling and recovery
+- [x] **Language Manager** - Centralized language management
+- [x] **Project Structure Documentation** - Comprehensive project structure guide
+- [x] **Installation Guide** - Detailed installation and setup documentation
+- [x] **API Documentation** - Complete API reference documentation
+- [x] **Example Configurations** - Example configuration files and guides
+
+### Changed
+- [x] **CLI Language Selection** - Added language selection during account setup
+- [x] **Error Handling** - Upgraded to advanced error recovery system
+- [x] **Configuration Storage** - Added language preference to settings
+- [x] **Module Structure** - Reorganized into `src/` directory with proper modules
+- [x] **File Naming** - Renamed all `index.js` files to descriptive names
+- [x] **Dependencies** - Updated to latest versions and removed unused packages
+- [x] **Error Messages** - All error messages now support localization
+- [x] **Command Outputs** - All command outputs now support localization
+- [x] **Webhook Content** - Webhook content now supports localization
+- [x] **CLI Interface** - Enhanced with language selection and localized messages
+- [x] **Bot Initialization** - Enhanced with language loading and error recovery
+- [x] **Update System** - Enhanced with localized update messages
+
+### Fixed
+- [x] **Module Import Errors** - Fixed all module import and export issues
+- [x] **Language Loading** - Fixed language file loading and parsing
+- [x] **Error Recovery** - Fixed error recovery initialization and event handling
+- [x] **Configuration Paths** - Fixed all configuration file paths after restructuring
+- [x] **CLI Language Integration** - Fixed language integration in CLI system
+- [x] **Command Language Support** - Fixed language support in command handler
+- [x] **Webhook Language Support** - Fixed language support in webhook logger
+- [x] **RPC Language Support** - Fixed language support in RPC manager
+- [x] **Update Language Support** - Fixed language support in update system
+- [x] **Error Recovery Integration** - Fixed error recovery integration in all modules
+
+### Technical Details
+
+#### Multi-Language Support
+- [x] **Language Files**: `src/locales/en.json` and `src/locales/id.json`
+- [x] **Language Manager**: `src/utils/language.js` with parameter interpolation
+- [x] **Dynamic Switching**: Runtime language switching without restart
+- [x] **Fallback System**: Automatic fallback to English if key not found
+- [x] **Parameter Interpolation**: Support for `{username}`, `{error}`, etc.
+- [x] **Nested Keys**: Support for nested translation keys
+- [x] **Validation**: Language completeness validation
+- [x] **Runtime Addition**: Add new languages at runtime
+
+#### Advanced Error Recovery
+- [x] **Error Recovery Manager**: `src/utils/errorRecovery.js`
+- [x] **Exponential Backoff**: 1s, 2s, 4s, 8s, 16s, 30s max with jitter
+- [x] **Circuit Breaker**: CLOSED, OPEN, HALF_OPEN states
+- [x] **Error Strategies**: Network, rate limit, auth, permission, connection refused
+- [x] **Recovery Actions**: Wait, retry, reconnect, refresh token, clear cache, reset connection
+- [x] **Event System**: Error, retry, recovery success/failure, circuit breaker events
+- [x] **Discord Integration**: Discord-specific error handling strategies
+- [x] **Graceful Degradation**: Fallback when recovery fails
+
+#### Modular Architecture
+- [x] **Main Entry**: `main.js` - Simple entry point
+- [x] **Bot Logic**: `src/bot.js` - Main bot orchestration
+- [x] **CLI System**: `src/cli/cli.js` - Interactive CLI
+- [x] **Command Handler**: `src/commands/commands.js` - Command processing
+- [x] **Webhook Logger**: `src/webhook/webhook.js` - Webhook logging
+- [x] **Language Manager**: `src/utils/language.js` - Language management
+- [x] **Error Recovery**: `src/utils/errorRecovery.js` - Error handling
+- [x] **RPC Manager**: `src/utils/rpc.js` - Rich Presence
+- [x] **Update System**: `src/utils/update.js` - Update management
+- [x] **Config Manager**: `src/config/manager.js` - Configuration management
+
+#### Language Support Details
+- [x] **CLI Messages**: All CLI prompts and messages localized
+- [x] **Command Responses**: All bot command responses localized
+- [x] **Error Messages**: All error messages localized
+- [x] **Webhook Content**: All webhook content localized
+- [x] **RPC Messages**: All RPC setup messages localized
+- [x] **Update Messages**: All update system messages localized
+- [x] **Help Content**: All help content localized
+- [x] **Status Messages**: All status messages localized
+
+#### Error Recovery Details
+- [x] **Network Errors**: ECONNRESET, ENOTFOUND, ETIMEDOUT handling
+- [x] **Rate Limiting**: RATELIMIT error handling with backoff
+- [x] **Authentication**: Token refresh and reconnection
+- [x] **Permissions**: Permission error handling without retry
+- [x] **Connection Refused**: Connection retry with reset
+- [x] **Unknown Errors**: Generic error handling with fallback
+- [x] **Circuit Breaker**: 5 failure threshold, 60s timeout
+- [x] **Jitter**: 10% random jitter to prevent thundering herd
+
+#### Configuration Updates
+- [x] **Language Setting**: Added `language` field to settings
+- [x] **Account Language**: Added `language` field to account configs
+- [x] **Default Language**: English as default language
+- [x] **Language Persistence**: Language preference saved to config
+- [x] **Language Loading**: Language loaded from config on startup
+
+#### Documentation Updates
+- [x] **README.md**: Updated with multi-language and error recovery features
+- [x] **PROJECT_STRUCTURE.md**: Complete project structure documentation
+- [x] **INSTALLATION.md**: Detailed installation guide with language setup
+- [x] **API.md**: Complete API documentation for all modules
+- [x] **CHANGELOG.md**: This comprehensive changelog
+- [x] **Examples**: Configuration examples and usage guides
+
+### Dependencies
+- [x] **discord.js-selfbot-v13**: `^3.7.1` - Updated to latest version
+- [x] **inquirer**: `^9.2.12` - CLI interactive prompts
+- [x] **chalk**: `^4.1.2` - Terminal colors and styling
+- [x] **Node.js Built-in**: `https`, `fs`, `path`, `child_process`, `events`
+
+### File Structure
+- [x] **main.js**: Entry point
+- [x] **src/bot.js**: Main bot logic
+- [x] **src/cli/cli.js**: Interactive CLI
+- [x] **src/commands/commands.js**: Command handler
+- [x] **src/webhook/webhook.js**: Webhook logger
+- [x] **src/utils/language.js**: Language manager
+- [x] **src/utils/errorRecovery.js**: Error recovery system
+- [x] **src/utils/rpc.js**: Rich Presence manager
+- [x] **src/utils/update.js**: Update system
+- [x] **src/config/manager.js**: Configuration manager
+- [x] **src/locales/en.json**: English translations
+- [x] **src/locales/id.json**: Indonesian translations
+- [x] **config/ihannsy.json**: Configuration storage
+- [x] **docs/**: Documentation directory
+- [x] **examples/**: Example files directory
+
+---
+
 ## [1.0.0] - 2024-01-01
 
 ### Added

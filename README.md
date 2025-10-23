@@ -9,7 +9,7 @@
 
 **Script selfbot Discord dengan fitur lengkap menggunakan `discord.js-selfbot-v13`**
 
-*Auto posting, Rich Presence, Webhook logging, dan Interactive CLI*
+*Auto posting, Rich Presence, Webhook logging, Multi-language support, Advanced error recovery, dan Interactive CLI*
 
 ---
 
@@ -45,6 +45,7 @@ npm start
 
 ### **4. Follow Interactive CLI**
 - **Auto update check** - Script otomatis cek update
+- **Language selection** - Pilih bahasa (English/Indonesia)
 - Input Discord user token
 - Pilih enable/disable webhook
 - Input webhook URL (jika enable)
@@ -62,6 +63,7 @@ npm start
 - **Account selection menu** - Pilih akun dari daftar yang tersimpan
 - **Configuration management** - Update config tanpa menghapus akun
 - **Auto update system** - Cek dan update script otomatis
+- **Multi-language support** - English & Indonesia dengan switching dinamis
 
 ### 🤖 **Auto Posting System**
 - **Command:** `{prefix}post <index> <message> <delay_minutes> <channel_id>`
@@ -82,6 +84,20 @@ npm start
 - Error tracking
 - Status monitoring
 - **Dapat di-disable** melalui CLI
+
+### 🌍 **Multi-Language Support**
+- **English & Indonesia** - Dukungan bahasa lengkap
+- **Dynamic switching** - Ganti bahasa tanpa restart
+- **Localized content** - Semua pesan dan output dalam bahasa pilihan
+- **CLI language selection** - Pilih bahasa saat setup
+- **Persistent settings** - Bahasa tersimpan di konfigurasi
+
+### 🛡️ **Advanced Error Recovery**
+- **Exponential backoff** - Retry otomatis dengan delay bertahap
+- **Circuit breaker** - Mencegah spam retry pada error berulang
+- **Discord-specific strategies** - Penanganan error khusus Discord
+- **Event-driven recovery** - Recovery berbasis event
+- **Graceful degradation** - Fallback yang elegan
 
 ---
 
@@ -110,7 +126,8 @@ npm start
 5. Input webhook URL (jika enable)
 6. Set custom prefix (default: !)
 7. Pilih enable/disable RPC
-8. Start bot
+8. **Pilih bahasa (English/Indonesia)**
+9. Start bot
 
 **Returning User:**
 1. Jalankan `npm start`
@@ -172,12 +189,39 @@ npm start
 
 ```
 /workspace/
-├── index.js           # Script utama
-├── cli.js             # CLI interactive system
-├── repo-update.js     # Repository update system
-├── package.json       # Dependencies & version info
-├── ihannsy.json       # Configuration storage (auto-created)
-└── README.md          # Dokumentasi
+├── main.js                    # Entry point utama
+├── package.json               # Dependencies & version info
+├── .gitignore                 # Git ignore rules
+├── .gitattributes             # Git attributes
+├── config/
+│   └── ihannsy.json          # Configuration storage (auto-created)
+├── src/
+│   ├── bot.js                # Main bot logic
+│   ├── cli/
+│   │   └── cli.js            # Interactive CLI system
+│   ├── commands/
+│   │   └── commands.js       # Command handler
+│   ├── webhook/
+│   │   └── webhook.js        # Webhook logger
+│   ├── utils/
+│   │   ├── language.js       # Language manager
+│   │   ├── errorRecovery.js  # Error recovery system
+│   │   ├── rpc.js            # Rich Presence manager
+│   │   └── update.js         # Update system
+│   ├── config/
+│   │   └── manager.js        # Configuration manager
+│   └── locales/
+│       ├── en.json           # English translations
+│       └── id.json           # Indonesian translations
+├── docs/
+│   ├── INSTALLATION.md       # Installation guide
+│   └── API.md                # API documentation
+├── examples/
+│   ├── config-example.json   # Configuration example
+│   └── README.md             # Examples guide
+├── PROJECT_STRUCTURE.md      # Project structure guide
+├── CHANGELOG.md              # Changelog
+└── README.md                 # Dokumentasi utama
 ```
 
 ---
@@ -186,27 +230,35 @@ npm start
 
 | Package | Version | Description |
 |---------|---------|-------------|
-| `discord.js-selfbot-v13` | ^3.0.1 | Library selfbot utama |
+| `discord.js-selfbot-v13` | ^3.7.1 | Library selfbot utama |
 | `inquirer` | ^9.2.12 | CLI interactive prompts |
 | `chalk` | ^4.1.2 | Terminal colors & styling |
-| `debug` | ^4.3.4 | Debug logging |
-| Node.js built-in | - | `https`, `fs`, `path`, `child_process` |
+| Node.js built-in | - | `https`, `fs`, `path`, `child_process`, `events` |
 
 ---
 
 ## 🛡️ **Error Handling & Stability**
 
+### **Advanced Error Recovery System**
+- **Exponential backoff** - Retry dengan delay bertahap (1s, 2s, 4s, 8s, 16s, 30s max)
+- **Circuit breaker pattern** - Mencegah spam retry pada error berulang
+- **Discord-specific strategies** - Penanganan error khusus Discord (network, rate limit, auth, permission)
+- **Event-driven recovery** - Recovery berbasis event dengan logging detail
+- **Graceful degradation** - Fallback yang elegan saat recovery gagal
+- **Jitter implementation** - Menghindari thundering herd problem
+- **Recovery action system** - Wait, retry, reconnect, refresh token, clear cache
+
 ### **Comprehensive Error Protection**
 - **Unhandled rejection handler** - Tangani promise rejection yang tidak tertangkap
-- **Uncaught exception handler** - Tangani error yang tidak tertangkap
+- **Uncaught exception handler** - Tangani error yang tidak tertangkap dengan recovery
 - **Warning handler** - Tangani deprecation warnings
-- **Error logging** - Logging ke webhook (jika enable)
+- **Error logging** - Logging ke webhook (jika enable) dengan detail recovery
 - **Graceful shutdown** - Clean exit dengan cleanup
-- **Connection handling** - Auto retry pada connection error
+- **Connection handling** - Auto retry pada connection error dengan backoff
 - **File validation** - Validasi attachment files
 - **Auto post error handling** - Stop auto post jika ada permission error
 - **Webhook error protection** - Webhook error tidak crash bot
-- **Retry logic** - Retry login dengan exponential backoff
+- **Retry logic** - Retry login dengan exponential backoff dan circuit breaker
 
 ---
 
