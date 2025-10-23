@@ -1,13 +1,11 @@
-<div align="center">
-
 # 🤖 Discord Selfbot Automation Script
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/ihannsy/discord-selfbot-automation)
 [![Node.js](https://img.shields.io/badge/node.js-16+-green.svg)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
-[![Discord](https://img.shields.io/badge/discord-join-7289da.svg?logo=discord&logoColor=white)](https://discord.gg/your-invite-link)
+[![Discord](https://img.shields.io/badge/discord-join-7289da.svg?logo=discord&logoColor=white)](https://discord.gg/8wM2tNhUdB)
 [![Instagram](https://img.shields.io/badge/instagram-follow-e4405f.svg?logo=instagram&logoColor=white)](https://www.instagram.com/saya.p4rhan)
-[![GitHub](https://img.shields.io/badge/github-star-black.svg?logo=github&logoColor=white)](https://github.com/ihannsy/discord-selfbot-automation)
+[![GitHub](https://img.shields.io/badge/github-star-black.svg?logo=github&logoColor=white)](https://github.com/MasPakan/tes.git)
 
 **Script selfbot Discord dengan fitur lengkap menggunakan `discord.js-selfbot-v13`**
 
@@ -25,18 +23,14 @@
 > - **Jangan gunakan di server yang tidak Anda miliki**
 > - **Kami tidak bertanggung jawab atas konsekuensi penggunaan**
 
-</div>
-
 ---
 
 ## 🚀 **Quick Start**
 
-<div align="center">
-
 ### **1. Clone Repository**
 ```bash
-git clone https://github.com/ihannsy/discord-selfbot-automation.git
-cd discord-selfbot-automation
+git clone https://github.com/MasPakan/tes.git
+cd tes
 ```
 
 ### **2. Install Dependencies**
@@ -58,15 +52,9 @@ npm start
 - Pilih enable/disable RPC
 - Start bot
 
-</div>
-
 ---
 
 ## 📋 **Fitur Lengkap**
-
-<table>
-<tr>
-<td width="50%" align="center">
 
 ### 🖥️ **Interactive CLI System**
 - **Multi-account management** - Simpan dan kelola multiple Discord accounts
@@ -75,9 +63,6 @@ npm start
 - **Configuration management** - Update config tanpa menghapus akun
 - **Auto update system** - Cek dan update script otomatis
 
-</td>
-<td width="50%" align="center">
-
 ### 🤖 **Auto Posting System**
 - **Command:** `{prefix}post <index> <message> <delay_minutes> <channel_id>`
 - Multi channel posting
@@ -85,19 +70,11 @@ npm start
 - **Easy file attachment** (just attach files to your command message!)
 - Error handling robust
 
-</td>
-</tr>
-<tr>
-<td width="50%" align="center">
-
 ### 🎮 **Rich Presence (Optional)**
 - Custom RPC dengan format yang diminta
 - Status "Do Not Disturb"
 - Assets dan buttons custom
 - **Dapat di-disable** melalui CLI
-
-</td>
-<td width="50%" align="center">
 
 ### 📊 **Webhook Logger (Optional)**
 - Logging otomatis ke webhook
@@ -106,15 +83,9 @@ npm start
 - Status monitoring
 - **Dapat di-disable** melalui CLI
 
-</td>
-</tr>
-</table>
-
 ---
 
 ## 🎯 **Management Commands**
-
-<div align="center">
 
 | Command | Description | Example |
 |---------|-------------|---------|
@@ -125,13 +96,9 @@ npm start
 | `{prefix}ping` | Cek latency bot & API | `!ping` |
 | `{prefix}help` | Manual penggunaan detail | `!help` |
 
-</div>
-
 ---
 
 ## 📖 **Cara Penggunaan**
-
-<div align="center">
 
 ### 🖥️ **CLI Interface**
 
@@ -149,8 +116,6 @@ npm start
 1. Jalankan `npm start`
 2. Pilih akun dari daftar yang tersimpan
 3. Pilih "Start Bot" atau "New Config"
-
-</div>
 
 ### 🤖 **Bot Commands**
 
@@ -182,8 +147,6 @@ npm start
 
 ## 🔧 **Konfigurasi**
 
-<div align="center">
-
 ### **CLI Configuration**
 - **Interactive setup** - Tidak perlu edit file manual
 - **Multi-account support** - Kelola multiple Discord accounts
@@ -203,8 +166,6 @@ npm start
 - **Remove accounts** - Hapus akun yang tidak digunakan
 - **Reconfigure** - Update settings tanpa menghapus akun
 
-</div>
-
 ---
 
 ## 📁 **Struktur File**
@@ -213,7 +174,7 @@ npm start
 /workspace/
 ├── index.js           # Script utama
 ├── cli.js             # CLI interactive system
-├── update.js          # Update management system
+├── repo-update.js     # Repository update system
 ├── package.json       # Dependencies & version info
 ├── ihannsy.json       # Configuration storage (auto-created)
 └── README.md          # Dokumentasi
@@ -223,22 +184,17 @@ npm start
 
 ## ⚡ **Dependencies**
 
-<div align="center">
-
 | Package | Version | Description |
 |---------|---------|-------------|
 | `discord.js-selfbot-v13` | ^3.0.1 | Library selfbot utama |
 | `inquirer` | ^9.2.12 | CLI interactive prompts |
 | `chalk` | ^4.1.2 | Terminal colors & styling |
+| `debug` | ^4.3.4 | Debug logging |
 | Node.js built-in | - | `https`, `fs`, `path`, `child_process` |
-
-</div>
 
 ---
 
 ## 🛡️ **Error Handling & Stability**
-
-<div align="center">
 
 ### **Comprehensive Error Protection**
 - **Unhandled rejection handler** - Tangani promise rejection yang tidak tertangkap
@@ -252,13 +208,9 @@ npm start
 - **Webhook error protection** - Webhook error tidak crash bot
 - **Retry logic** - Retry login dengan exponential backoff
 
-</div>
-
 ---
 
 ## 🆘 **Troubleshooting**
-
-<div align="center">
 
 ### **Common Issues & Solutions**
 
@@ -270,52 +222,71 @@ npm start
 | **Bot crash atau error** | Bot memiliki comprehensive error handling, unhandled rejection akan di-log ke webhook |
 | **Memory leak atau performance** | Bot otomatis cleanup saat shutdown, auto post interval di-clear dengan benar |
 
-</div>
-
 ---
 
 ## 📊 **Screenshots**
 
-<div align="center">
-
 ### **CLI Interface**
 ```
-╔══════════════════════════════════════════════════════════════╗
-║                                                              ║
-║           🤖 DISCORD SELFBOT AUTOMATION SCRIPT              ║
-║                                                              ║
-║                    𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀                            ║
-║              We Grow Because You Believe                    ║
-║                                                              ║
-╚══════════════════════════════════════════════════════════════╝
+████████████████████████████████████████████████████████████
+████████████████████████████████████████████████████████████
+████████████████████████████████████████████████████████████
+████████████████████████████████████████████████████████████
+████████████████████████████████████████████████████████████
+███████████████████████████████▓████████████████████████████
+██████████████████▓▓█████████▓░░▓███████████████████████████
+████████████████▓▒▓▓▓▓████▓▒▒░ ░░▒▓██████▓░█████████████████
+████████████████░▒▓▒▓▓██████▓▒ ▒▓██████▓▒░ ░▓███████████████
+███████████████▒░▒▒▒▓▓███████▒░▓█████▓▒▒▓▓░▒▓███████████████
+███████████████░▒▓▒▒▓▓███▓▓██▓▒███████▒▒▓█░██▓▓▓████████████
+██████████████▓░▒▓▒▓▓▓██▓▒▒░░░░░▒▒▒▒▓▓▓▓▓█▓██▒▓▓████████████
+██████████████▒░▓▒▒▒▓▓▓██▓██▒░░░     ░░░░░░▒▒▒▒▓▓████████████
+██████████████▒▒▓▒▒▓▓▓▓█▓███▓▒▒░░░░░      ░░▓▓▓▓████████████
+█████████████▓░▒▓▒▓▓▓▓▓▓▓█████▓▓▓▒▒▒░░░▒▓▓▓███▓▓████████████
+█████████████▓▒▓▓▒▒▒▓▓▓▓███████████▓██████████▓▓████████████
+█████████████▒▒▓▒▒░▒▒▒▒▓▓▓▓▓▓▓▓▓▓▓█████████▓▓█▓▒████████████
+█████████████░▒▓▒▓▓▓███████████████████████▓▓█▓▒████████████
+█████████████▒▓█▓██████████████████████████▓██▓▓████████████
+██████████████▓███████▓▓▓████████████████████▓▓▓████████████
+███████████████████▒▓█░▒▒▓█████████████████▓▓▓██████████████
+██████████████████▓░▓▓░░░▓███████████▓██▓███████████████████
+██████████████████▓▓█▓▓▓▓███████████▓▓█▓▒███████████████████
+████████████████████████████████▓▒▒▓▓▓█▓▓███████████████████
+████████████████████████████████████████████████████████████
 
-🔍 Checking for updates...
+⚠️  Warning: Using selfbots violates Discord ToS. Use at your own risk!
+
+🔍 Checking repository for updates...
 ✅ You are running the latest version!
 
-👤 username1
-👤 username2
-➕ New Account
-🔄 Update Script
-❌ Quit
+? Select an account or action:
+❯ ➕ New Account 
+  ❌ Quit
 ```
 
 ### **Bot Commands**
 ```
 !post 1 "Promo special! 🎉" 5 123456789012345678
-✅ Auto post [1] started in #general with 5 minute(s) delay
+# AUTOPOST STARTED
+> - Index **1**
+> - Running in **<#123456789012345678>**'s
+> - Delay **5** minute(s)
+> - Attachment(s) **2**
 
 !index
-[1] general (123456789012345678) - 5 minute(s) delay - 🟢 Running
-[2] promo (987654321098765432) - 30 minute(s) delay - 🟢 Running
-```
+# AUTO POST LIST
+> - **1:** [Ch: <#123456789012345678> - D: 5 A: 2]
+> - **2:** [Ch: <#987654321098765432> - D: 30 A: 0]
 
-</div>
+!ping
+# 🏓 PONG!
+> - Bot Latency: 45ms
+> - API Latency: 123ms
+```
 
 ---
 
 ## 🤝 **Contributing**
-
-<div align="center">
 
 ### **How to Contribute**
 1. Fork the repository
@@ -329,40 +300,28 @@ npm start
 - Provide detailed information
 - Include error logs if possible
 
-</div>
-
 ---
 
 ## 📞 **Support & Contact**
 
-<div align="center">
-
 ### **Get Help**
-- **Discord Server**: [Join our Discord](https://discord.gg/your-invite-link)
+- **Discord Server**: [Join our Discord](https://discord.gg/8wM2tNhUdB)
 - **Instagram**: [@saya.p4rhan](https://www.instagram.com/saya.p4rhan)
-- **GitHub Issues**: [Report Issues](https://github.com/ihannsy/discord-selfbot-automation/issues)
+- **GitHub Issues**: [Report Issues](https://github.com/MasPakan/tes/issues)
 
 ### **Developer**
-- **GitHub**: [@ihannsy](https://github.com/ihannsy)
+- **GitHub**: [@MasPakan](https://github.com/MasPakan)
 - **Instagram**: [@saya.p4rhan](https://www.instagram.com/saya.p4rhan)
-
-</div>
 
 ---
 
 ## 📄 **License**
 
-<div align="center">
-
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 **⚠️ Disclaimer**: This software is for educational purposes only. Use at your own risk.
 
-</div>
-
 ---
-
-<div align="center">
 
 ## 🌟 **Star this Repository**
 
@@ -371,5 +330,3 @@ If you found this project helpful, please give it a ⭐!
 **𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀** - We Grow Because You Believe
 
 *Honest From the Start, Always Safe*
-
-</div>
