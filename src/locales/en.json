@@ -118,7 +118,7 @@
         "post_counter": "Post Counter",
         "status": "Status"
       },
-      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\\nWe Grow Because You Believe.\\nHonest From the Start, Always Safe.\\n{datetime}",
+      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\nWe Grow Because You Believe.\nHonest From the Start, Always Safe.\n{datetime}",
       "username": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - {username}"
     },
     "activity": {
@@ -128,7 +128,7 @@
         "client_user": "Client User",
         "activity": "Activity"
       },
-      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\\n{datetime}",
+      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\n{datetime}",
       "username": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - {username}"
     },
     "images": {
