@@ -11,8 +11,8 @@
 ## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/MasPakan/tes.git
-cd tes
+git clone https://github.com/MasPakan/Selfbot.git
+cd Selfbot
 npm install
 npm start
 ```
