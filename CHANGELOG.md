@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.0] - 2024-01-15
+## [1.1.0] - 2025-10-23
 
 ### ✨ New Features
 - [x] **Multi-Language Support** - English & Indonesian with dynamic switching
@@ -47,7 +47,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.0.0] - 2024-01-01
+## [1.0.0] - 2025-10-21
 
 ### ✨ Initial Release
 - [x] **Discord Selfbot** - Complete selfbot implementation
