@@ -306,6 +306,9 @@ class DiscordSelfbotCLI {
 
         // Update settings
         this.updateLanguageSetting(language);
+        
+        // Update webhook setting
+        this.updateWebhookSetting(enableWebhook);
 
         console.log(chalk.green(`\n${this.t('cli.account_flow.success', { username })}\n`));
         console.log(chalk.blue(`${this.t('cli.account_flow.config_saved')}\n`));
@@ -325,6 +328,21 @@ class DiscordSelfbotCLI {
             fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2));
         } catch (error) {
             console.error('❌ Error updating language setting:', error.message);
+        }
+    }
+
+    updateWebhookSetting(enableWebhook) {
+        try {
+            // Ensure config file exists before trying to update
+            this.ensureConfigFile();
+            
+            const data = fs.readFileSync(this.configFile, 'utf8');
+            const config = JSON.parse(data);
+            if (!config.settings) config.settings = {};
+            config.settings.defaultWebhook = enableWebhook;
+            fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2));
+        } catch (error) {
+            console.error('❌ Error updating webhook setting:', error.message);
         }
     }
 
