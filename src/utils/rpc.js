@@ -20,16 +20,16 @@ class RPCManager {
 
         try {
             const rpc = new RichPresence(this.client)
-                .setApplicationId("1396351851410227292")
+                .setApplicationId("1412695779016966154")
                 .setType("WATCHING")
-                .setName("Aurhel Alana")
-                .setDetails("Aurhel Alana")
-                .setState("You,My Love,Forever💞")
+                .setName("iHannsy Script.")
+                .setDetails("Selfbot Multi-features.")
+                .setState("Any issues? report on discussion")
                 .setStartTimestamp(this.client.readyTimestamp)
-                .setAssetsLargeImage("1407967063657681037")
-                .setAssetsLargeText("Bininya MasPakan🥰💕")
-                .setAssetsSmallImage("1407967063984574544")
-                .setAssetsSmallText("iHannsy - MasPakan")
+                .setAssetsLargeImage("1430879785986293853")
+                .setAssetsLargeText("iHannst")
+                .setAssetsSmallImage("https://cdn.discordapp.com/emojis/1410320378294833313.gif")
+                .setAssetsSmallText("Verified")
                 .addButton("Github", "https://www.github.com/namakuhans")
                 .addButton("Instagram", "https://www.instagram.com/saya.p4rhan");
 
