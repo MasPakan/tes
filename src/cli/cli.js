@@ -16,14 +16,15 @@ class DiscordSelfbotCLI {
 
     loadLanguageSettings() {
         try {
-            if (fs.existsSync(this.configFile)) {
-                const data = fs.readFileSync(this.configFile, 'utf8');
-                const config = JSON.parse(data);
-                const language = config.settings?.language || 'en';
-                this.languageManager.setLanguage(language);
-            }
+            // Ensure config file exists before trying to read it
+            this.ensureConfigFile();
+            
+            const data = fs.readFileSync(this.configFile, 'utf8');
+            const config = JSON.parse(data);
+            const language = config.settings?.language || 'en';
+            this.languageManager.setLanguage(language);
         } catch (error) {
-            console.error('Error loading language settings:', error.message);
+            console.error('❌ Error loading language settings:', error.message);
         }
     }
 
@@ -73,28 +74,29 @@ class DiscordSelfbotCLI {
 
     loadAccounts() {
         try {
+            // Ensure config file exists before trying to read it
+            this.ensureConfigFile();
+            
             const data = fs.readFileSync(this.configFile, 'utf8');
             const config = JSON.parse(data);
             return config.accounts || {};
         } catch (error) {
+            console.error('❌ Error loading accounts:', error.message);
             return {};
         }
     }
 
     saveAccounts(accounts) {
         try {
-            // Ensure the config directory exists
-            const configDir = path.dirname(this.configFile);
-            if (!fs.existsSync(configDir)) {
-                fs.mkdirSync(configDir, { recursive: true });
-            }
+            // Ensure config file exists before trying to save
+            this.ensureConfigFile();
             
             const data = fs.readFileSync(this.configFile, 'utf8');
             const config = JSON.parse(data);
             config.accounts = accounts;
             fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2));
         } catch (error) {
-            console.error('Error saving accounts:', error.message);
+            console.error('❌ Error saving accounts:', error.message);
         }
     }
 
@@ -313,11 +315,8 @@ class DiscordSelfbotCLI {
 
     updateLanguageSetting(language) {
         try {
-            // Ensure the config directory exists
-            const configDir = path.dirname(this.configFile);
-            if (!fs.existsSync(configDir)) {
-                fs.mkdirSync(configDir, { recursive: true });
-            }
+            // Ensure config file exists before trying to update
+            this.ensureConfigFile();
             
             const data = fs.readFileSync(this.configFile, 'utf8');
             const config = JSON.parse(data);
@@ -325,7 +324,7 @@ class DiscordSelfbotCLI {
             config.settings.language = language;
             fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2));
         } catch (error) {
-            console.error('Error updating language setting:', error.message);
+            console.error('❌ Error updating language setting:', error.message);
         }
     }
 
@@ -377,6 +376,9 @@ class DiscordSelfbotCLI {
     }
 
     async start() {
+        // Ensure config file exists before starting
+        this.ensureConfigFile();
+        
         await this.showWelcome();
         return await this.showMainMenu();
     }
