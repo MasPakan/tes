@@ -3,7 +3,7 @@ const path = require('path');
 
 class ConfigManager {
     constructor() {
-        this.configFile = path.join(__dirname, '../../config/ihannsy.json');
+        this.configFile = path.join(process.cwd(), 'config/ihannsy.json');
         this.config = this.loadConfig();
     }
 

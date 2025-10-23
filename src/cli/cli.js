@@ -8,7 +8,7 @@ const LanguageManager = require('../utils/language');
 
 class DiscordSelfbotCLI {
     constructor() {
-        this.configFile = path.join(__dirname, '../../config/ihannsy.json');
+        this.configFile = path.join(process.cwd(), 'config/ihannsy.json');
         this.updateManager = new RepositoryUpdateManager();
         this.languageManager = new LanguageManager();
         this.loadLanguageSettings();
