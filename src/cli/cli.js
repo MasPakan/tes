@@ -16,14 +16,15 @@ class DiscordSelfbotCLI {
 
     loadLanguageSettings() {
         try {
-            if (fs.existsSync(this.configFile)) {
-                const data = fs.readFileSync(this.configFile, 'utf8');
-                const config = JSON.parse(data);
-                const language = config.settings?.language || 'en';
-                this.languageManager.setLanguage(language);
-            }
+            // Ensure config file exists before trying to read it
+            this.ensureConfigFile();
+            
+            const data = fs.readFileSync(this.configFile, 'utf8');
+            const config = JSON.parse(data);
+            const language = config.settings?.language || 'en';
+            this.languageManager.setLanguage(language);
         } catch (error) {
-            console.error('Error loading language settings:', error.message);
+            console.error('❌ Error loading language settings:', error.message);
         }
     }
 
@@ -73,28 +74,29 @@ class DiscordSelfbotCLI {
 
     loadAccounts() {
         try {
+            // Ensure config file exists before trying to read it
+            this.ensureConfigFile();
+            
             const data = fs.readFileSync(this.configFile, 'utf8');
             const config = JSON.parse(data);
             return config.accounts || {};
         } catch (error) {
+            console.error('❌ Error loading accounts:', error.message);
             return {};
         }
     }
 
     saveAccounts(accounts) {
         try {
-            // Ensure the config directory exists
-            const configDir = path.dirname(this.configFile);
-            if (!fs.existsSync(configDir)) {
-                fs.mkdirSync(configDir, { recursive: true });
-            }
+            // Ensure config file exists before trying to save
+            this.ensureConfigFile();
             
             const data = fs.readFileSync(this.configFile, 'utf8');
             const config = JSON.parse(data);
             config.accounts = accounts;
             fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2));
         } catch (error) {
-            console.error('Error saving accounts:', error.message);
+            console.error('❌ Error saving accounts:', error.message);
         }
     }
 
@@ -145,6 +147,7 @@ class DiscordSelfbotCLI {
         const choices = [
             { name: `${chalk.green('🚀')} ${this.t('cli.menu.account.start_bot')}`, value: 'start' },
             { name: `${chalk.blue('⚙️')} ${this.t('cli.menu.account.new_config')}`, value: 'config' },
+            { name: `${chalk.yellow('🎮')} ${this.t('cli.menu.account.toggle_rpc')}`, value: 'rpc' },
             { name: `${chalk.red('🗑️')} ${this.t('cli.menu.account.remove_account')}`, value: 'remove' },
             { name: `${chalk.gray('⬅️')} ${this.t('cli.menu.account.back')}`, value: 'back' }
         ];
@@ -161,6 +164,8 @@ class DiscordSelfbotCLI {
                 return { action: 'start', config: account };
             case 'config':
                 return await this.showNewAccountFlow(username);
+            case 'rpc':
+                return await this.toggleRPC(username, account);
             case 'remove':
                 return await this.removeAccount(username);
             case 'back':
@@ -304,6 +309,9 @@ class DiscordSelfbotCLI {
 
         // Update settings
         this.updateLanguageSetting(language);
+        
+        // Update webhook setting
+        this.updateWebhookSetting(enableWebhook);
 
         console.log(chalk.green(`\n${this.t('cli.account_flow.success', { username })}\n`));
         console.log(chalk.blue(`${this.t('cli.account_flow.config_saved')}\n`));
@@ -313,11 +321,8 @@ class DiscordSelfbotCLI {
 
     updateLanguageSetting(language) {
         try {
-            // Ensure the config directory exists
-            const configDir = path.dirname(this.configFile);
-            if (!fs.existsSync(configDir)) {
-                fs.mkdirSync(configDir, { recursive: true });
-            }
+            // Ensure config file exists before trying to update
+            this.ensureConfigFile();
             
             const data = fs.readFileSync(this.configFile, 'utf8');
             const config = JSON.parse(data);
@@ -325,8 +330,49 @@ class DiscordSelfbotCLI {
             config.settings.language = language;
             fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2));
         } catch (error) {
-            console.error('Error updating language setting:', error.message);
+            console.error('❌ Error updating language setting:', error.message);
         }
+    }
+
+    updateWebhookSetting(enableWebhook) {
+        try {
+            // Ensure config file exists before trying to update
+            this.ensureConfigFile();
+            
+            const data = fs.readFileSync(this.configFile, 'utf8');
+            const config = JSON.parse(data);
+            if (!config.settings) config.settings = {};
+            config.settings.defaultWebhook = enableWebhook;
+            fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2));
+        } catch (error) {
+            console.error('❌ Error updating webhook setting:', error.message);
+        }
+    }
+
+    async toggleRPC(username, account) {
+        const currentRPC = account.enableRPC;
+        const { enableRPC } = await inquirer.prompt([{
+            type: 'confirm',
+            name: 'enableRPC',
+            message: this.t('cli.toggle_rpc.prompt', { 
+                status: currentRPC ? 'enabled' : 'disabled',
+                action: currentRPC ? 'disable' : 'enable'
+            }),
+            default: !currentRPC
+        }]);
+
+        if (enableRPC !== currentRPC) {
+            // Update account RPC setting
+            const accounts = this.loadAccounts();
+            accounts[username].enableRPC = enableRPC;
+            this.saveAccounts(accounts);
+
+            console.log(chalk.green(this.t('cli.toggle_rpc.success', { 
+                status: enableRPC ? 'enabled' : 'disabled' 
+            })));
+        }
+
+        return await this.showAccountMenu(username, accounts[username]);
     }
 
     async fetchDiscordUser(token) {
@@ -377,6 +423,9 @@ class DiscordSelfbotCLI {
     }
 
     async start() {
+        // Ensure config file exists before starting
+        this.ensureConfigFile();
+        
         await this.showWelcome();
         return await this.showMainMenu();
     }

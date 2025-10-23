@@ -22,11 +22,18 @@ class ConfigManager {
                 }
                 
                 return config;
+            } else {
+                // Config file doesn't exist, create it with default values
+                console.log('📝 Config file not found, creating default configuration...');
+                this.ensureConfigFile();
+                return this.getDefaultConfig();
             }
         } catch (error) {
             console.error('❌ Error loading configuration:', error.message);
+            // If there's an error loading, create a fresh config file
+            this.ensureConfigFile();
+            return this.getDefaultConfig();
         }
-        return this.getDefaultConfig();
     }
 
     getDefaultConfig() {
@@ -41,13 +48,29 @@ class ConfigManager {
         };
     }
 
-    saveConfig() {
+    ensureConfigFile() {
         try {
             // Ensure the config directory exists
             const configDir = path.dirname(this.configFile);
             if (!fs.existsSync(configDir)) {
                 fs.mkdirSync(configDir, { recursive: true });
             }
+            
+            // Create config file if it doesn't exist
+            if (!fs.existsSync(this.configFile)) {
+                const defaultConfig = this.getDefaultConfig();
+                fs.writeFileSync(this.configFile, JSON.stringify(defaultConfig, null, 2));
+                console.log('✅ Created default config file:', this.configFile);
+            }
+        } catch (error) {
+            console.error('❌ Error creating config file:', error.message);
+        }
+    }
+
+    saveConfig() {
+        try {
+            // Ensure the config file exists before saving
+            this.ensureConfigFile();
             
             fs.writeFileSync(this.configFile, JSON.stringify(this.config, null, 2));
         } catch (error) {
@@ -60,8 +83,12 @@ class ConfigManager {
     }
 
     saveAccounts(accounts) {
-        this.config.accounts = accounts;
-        this.saveConfig();
+        try {
+            this.config.accounts = accounts;
+            this.saveConfig();
+        } catch (error) {
+            console.error('❌ Error saving accounts:', error.message);
+        }
     }
 
     getAccount(username) {
@@ -93,8 +120,12 @@ class ConfigManager {
     }
 
     updateSettings(newSettings) {
-        this.config.settings = { ...this.config.settings, ...newSettings };
-        this.saveConfig();
+        try {
+            this.config.settings = { ...this.config.settings, ...newSettings };
+            this.saveConfig();
+        } catch (error) {
+            console.error('❌ Error updating settings:', error.message);
+        }
     }
 }
 

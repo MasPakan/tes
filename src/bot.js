@@ -132,6 +132,10 @@ class DiscordSelfbot {
         this.client.on('resume', () => {
             console.log(this.t('bot.startup.reconnected'));
             this.webhookLogger?.sendActivityLog(this.t('bot.startup.reconnected'));
+            // Refresh RPC on reconnection
+            this.rpcManager?.refreshRPC().catch(error => {
+                console.error('Error refreshing RPC:', error.message);
+            });
         });
 
         // Ready event
@@ -142,7 +146,9 @@ class DiscordSelfbot {
                 username: this.client.user.username,
                 avatarUrl: this.client.user.avatarURL()
             });
-            this.rpcManager?.setupRichPresence();
+            this.rpcManager?.setupRichPresence().catch(error => {
+                console.error('Error setting up RPC:', error.message);
+            });
             this.webhookLogger?.sendActivityLog("Selfbot started successfully");
         });
     }
@@ -216,6 +222,9 @@ class DiscordSelfbot {
                 this.webhookLogger.sendActivityLog(`Bot shutting down due to ${signal}`);
             }
 
+            // Stop RPC monitoring
+            this.rpcManager?.stopMonitoring();
+
             if (this.client) {
                 this.client.destroy();
             }
@@ -283,6 +292,8 @@ class DiscordSelfbot {
                 // Keep the process alive
                 this.client.on('disconnect', () => {
                     console.log(this.t('bot.recovery.auto_reconnect', { delay: 5 }));
+                    // Stop RPC monitoring on disconnect
+                    this.rpcManager?.stopMonitoring();
                     setTimeout(() => {
                         this.startBotWithRetry(config);
                     }, 5000);
