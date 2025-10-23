@@ -16,6 +16,7 @@
         "title": "Akun: {username}\nApa yang ingin Anda lakukan?",
         "start_bot": "🚀 Mulai Bot",
         "new_config": "⚙️ Konfigurasi Baru",
+        "toggle_rpc": "🎮 Toggle RPC",
         "remove_account": "🗑️ Hapus Akun",
         "back": "⬅️ Kembali ke Menu Utama"
       }
@@ -38,6 +39,10 @@
     "remove_account": {
       "confirm": "Apakah Anda yakin ingin menghapus akun \"{username}\"?",
       "success": "✅ Akun \"{username}\" berhasil dihapus!"
+    },
+    "toggle_rpc": {
+      "prompt": "RPC saat ini {status}. Apakah Anda ingin {action}?",
+      "success": "✅ RPC berhasil {status}!"
     },
     "goodbye": "👋 Selamat tinggal!",
     "updates": {
@@ -140,7 +145,12 @@
     "setup": "🎮 Mengatur Rich Presence...",
     "enabled": "✅ Rich Presence diaktifkan",
     "disabled": "❌ Rich Presence dinonaktifkan",
-    "error": "❌ Kesalahan mengatur Rich Presence: {error}"
+    "error": "❌ Kesalahan mengatur Rich Presence: {error}",
+    "client_not_ready": "⚠️ Client belum siap, mencoba ulang setup RPC...",
+    "retrying": "🔄 Mencoba ulang setup RPC (percobaan {attempt}) dalam {delay}s...",
+    "max_retries_reached": "❌ Mencapai batas maksimal percobaan untuk setup RPC",
+    "lost_connection": "⚠️ Koneksi RPC hilang, mencoba memulihkan...",
+    "refreshing": "🔄 Memperbarui Rich Presence..."
   },
   "update": {
     "checking": "🔄 Memeriksa pembaruan...",

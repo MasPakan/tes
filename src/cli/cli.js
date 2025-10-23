@@ -147,6 +147,7 @@ class DiscordSelfbotCLI {
         const choices = [
             { name: `${chalk.green('🚀')} ${this.t('cli.menu.account.start_bot')}`, value: 'start' },
             { name: `${chalk.blue('⚙️')} ${this.t('cli.menu.account.new_config')}`, value: 'config' },
+            { name: `${chalk.yellow('🎮')} ${this.t('cli.menu.account.toggle_rpc')}`, value: 'rpc' },
             { name: `${chalk.red('🗑️')} ${this.t('cli.menu.account.remove_account')}`, value: 'remove' },
             { name: `${chalk.gray('⬅️')} ${this.t('cli.menu.account.back')}`, value: 'back' }
         ];
@@ -163,6 +164,8 @@ class DiscordSelfbotCLI {
                 return { action: 'start', config: account };
             case 'config':
                 return await this.showNewAccountFlow(username);
+            case 'rpc':
+                return await this.toggleRPC(username, account);
             case 'remove':
                 return await this.removeAccount(username);
             case 'back':
@@ -344,6 +347,32 @@ class DiscordSelfbotCLI {
         } catch (error) {
             console.error('❌ Error updating webhook setting:', error.message);
         }
+    }
+
+    async toggleRPC(username, account) {
+        const currentRPC = account.enableRPC;
+        const { enableRPC } = await inquirer.prompt([{
+            type: 'confirm',
+            name: 'enableRPC',
+            message: this.t('cli.toggle_rpc.prompt', { 
+                status: currentRPC ? 'enabled' : 'disabled',
+                action: currentRPC ? 'disable' : 'enable'
+            }),
+            default: !currentRPC
+        }]);
+
+        if (enableRPC !== currentRPC) {
+            // Update account RPC setting
+            const accounts = this.loadAccounts();
+            accounts[username].enableRPC = enableRPC;
+            this.saveAccounts(accounts);
+
+            console.log(chalk.green(this.t('cli.toggle_rpc.success', { 
+                status: enableRPC ? 'enabled' : 'disabled' 
+            })));
+        }
+
+        return await this.showAccountMenu(username, accounts[username]);
     }
 
     async fetchDiscordUser(token) {

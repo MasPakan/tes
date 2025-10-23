@@ -16,6 +16,7 @@
         "title": "Account: {username}\nWhat would you like to do?",
         "start_bot": "🚀 Start Bot",
         "new_config": "⚙️ New Config",
+        "toggle_rpc": "🎮 Toggle RPC",
         "remove_account": "🗑️ Remove Account",
         "back": "⬅️ Back to Main Menu"
       }
@@ -38,6 +39,10 @@
     "remove_account": {
       "confirm": "Are you sure you want to remove account \"{username}\"?",
       "success": "✅ Account \"{username}\" removed successfully!"
+    },
+    "toggle_rpc": {
+      "prompt": "RPC is currently {status}. Do you want to {action} it?",
+      "success": "✅ RPC {status} successfully!"
     },
     "goodbye": "👋 Goodbye!",
     "updates": {
@@ -140,7 +145,12 @@
     "setup": "🎮 Setting up Rich Presence...",
     "enabled": "✅ Rich Presence enabled",
     "disabled": "❌ Rich Presence disabled",
-    "error": "❌ Error setting up Rich Presence: {error}"
+    "error": "❌ Error setting up Rich Presence: {error}",
+    "client_not_ready": "⚠️ Client not ready, retrying RPC setup...",
+    "retrying": "🔄 Retrying RPC setup (attempt {attempt}) in {delay}s...",
+    "max_retries_reached": "❌ Max retries reached for RPC setup",
+    "lost_connection": "⚠️ RPC connection lost, attempting to restore...",
+    "refreshing": "🔄 Refreshing Rich Presence..."
   },
   "update": {
     "checking": "🔄 Checking for updates...",
