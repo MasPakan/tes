@@ -168,5 +168,12 @@
     "back": "Back",
     "next": "Next",
     "finish": "Finish"
+  },
+  "errors": {
+    "dm_disabled": "⚠️  Cannot send DM to user (user has disabled DMs or blocked the bot)",
+    "dm_fallback": "📝 Message that would have been sent: {message}",
+    "message_send_failed": "❌ Error sending message: {error}",
+    "missing_permissions": "⚠️  Missing permissions to send DM",
+    "missing_access": "⚠️  Missing access to send DM"
   }
 }

@@ -13,6 +13,31 @@ class CommandHandler {
         return this.languageManager.t(key, params);
     }
 
+    // Safe message sending with error handling
+    async safeSendMessage(message) {
+        try {
+            await this.client.user.send(message);
+        } catch (error) {
+            switch (error.code) {
+                case 50007: // Cannot send messages to this user
+                    console.log(this.t('errors.dm_disabled'));
+                    console.log(this.t('errors.dm_fallback', { message }));
+                    break;
+                case 50013: // Missing permissions
+                    console.log(this.t('errors.missing_permissions'));
+                    console.log(this.t('errors.dm_fallback', { message }));
+                    break;
+                case 50001: // Missing access
+                    console.log(this.t('errors.missing_access'));
+                    console.log(this.t('errors.dm_fallback', { message }));
+                    break;
+                default:
+                    console.error(this.t('errors.message_send_failed', { error: error.message }));
+                    console.log(this.t('errors.dm_fallback', { message }));
+            }
+        }
+    }
+
     // Format date time in specific format: Thursday, 23 October 2025 | 06.11.23
     formatDateTime() {
         const now = new Date();
@@ -35,7 +60,7 @@ class CommandHandler {
         try {
             const channel = this.client.channels.cache.get(channelId);
             if (!channel) {
-                await this.client.user.send(`Channel ${channelId} not found`);
+                await this.safeSendMessage(`Channel ${channelId} not found`);
                 this.webhookLogger.sendActivityLog("Auto Post Start Failed", `Channel ${channelId} not found`);
                 return;
             }
@@ -61,7 +86,7 @@ class CommandHandler {
                     if (error.code === 50013) {
                         clearInterval(intervalId);
                         this.autoPosts.delete(index);
-                        await this.client.user.send(`Auto post ${index} stopped due to permission error in ${channel.name}`);
+                        await this.safeSendMessage(`Auto post ${index} stopped due to permission error in ${channel.name}`);
                     }
                 }
             }, delay * 60 * 1000); // Convert minutes to milliseconds
@@ -75,7 +100,7 @@ class CommandHandler {
                 startTime: Date.now()
             });
 
-            await this.client.user.send(this.t('commands.autopost.started', {
+            await this.safeSendMessage(this.t('commands.autopost.started', {
                 index,
                 channel_id: channelId,
                 delay,

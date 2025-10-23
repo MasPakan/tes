@@ -168,5 +168,12 @@
     "back": "Kembali",
     "next": "Lanjut",
     "finish": "Selesai"
+  },
+  "errors": {
+    "dm_disabled": "⚠️  Tidak dapat mengirim DM ke pengguna (pengguna menonaktifkan DM atau memblokir bot)",
+    "dm_fallback": "📝 Pesan yang akan dikirim: {message}",
+    "message_send_failed": "❌ Kesalahan mengirim pesan: {error}",
+    "missing_permissions": "⚠️  Tidak memiliki izin untuk mengirim DM",
+    "missing_access": "⚠️  Tidak memiliki akses untuk mengirim DM"
   }
 }
