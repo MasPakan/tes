@@ -77,10 +77,14 @@ class CommandHandler {
 
                 await channel.send(postData);
                 this.postCount++;
-                this.webhookLogger.sendAutopostLog("Auto Post Executed", channel, message, null, delay, null, this.postCount);
+                const autoPost = this.autoPosts.get(index);
+                const uptime = autoPost ? Date.now() - autoPost.startTime : null;
+                this.webhookLogger.sendAutopostLog("Auto Post Executed", channel, message, null, delay, uptime, this.postCount);
             } catch (error) {
                 console.error(`Error sending first message to ${channel.name}:`, error.message);
-                this.webhookLogger.sendAutopostLog("Auto Post Error", channel, message, error.message, delay, null, this.postCount);
+                const autoPost = this.autoPosts.get(index);
+                const uptime = autoPost ? Date.now() - autoPost.startTime : null;
+                this.webhookLogger.sendAutopostLog("Auto Post Error", channel, message, error.message, delay, uptime, this.postCount);
                 
                 // Stop auto post if permission error
                 if (error.code === 50013) {
@@ -102,10 +106,14 @@ class CommandHandler {
 
                     await channel.send(postData);
                     this.postCount++;
-                    this.webhookLogger.sendAutopostLog("Auto Post Executed", channel, message, null, delay, null, this.postCount);
+                    const autoPost = this.autoPosts.get(index);
+                    const uptime = autoPost ? Date.now() - autoPost.startTime : null;
+                    this.webhookLogger.sendAutopostLog("Auto Post Executed", channel, message, null, delay, uptime, this.postCount);
                 } catch (error) {
                     console.error(`Error posting to ${channel.name}:`, error.message);
-                    this.webhookLogger.sendAutopostLog("Auto Post Error", channel, message, error.message, delay, null, this.postCount);
+                    const autoPost = this.autoPosts.get(index);
+                    const uptime = autoPost ? Date.now() - autoPost.startTime : null;
+                    this.webhookLogger.sendAutopostLog("Auto Post Error", channel, message, error.message, delay, uptime, this.postCount);
                     
                     // Stop auto post if permission error
                     if (error.code === 50013) {
@@ -131,7 +139,7 @@ class CommandHandler {
                 delay,
                 count: attachments.length
             }));
-            this.webhookLogger.sendAutopostLog("Auto Post Started", channel, message, null, delay, null, 0);
+            this.webhookLogger.sendAutopostLog("Auto Post Started", channel, message, null, delay, 0, 0);
         } catch (error) {
             console.error('Error starting auto post:', error.message);
             this.webhookLogger.sendActivityLog("Auto Post Start Error", error.message);

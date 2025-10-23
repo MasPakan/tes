@@ -27,6 +27,18 @@ class WebhookLogger {
         return `${dayName}, ${day} ${month} ${year} | ${hours}.${minutes}.${seconds}`;
     }
 
+    // Format uptime in HH.MM.SS format
+    formatUptime(uptime) {
+        if (!uptime) return "N/A";
+        
+        const totalSeconds = Math.floor(uptime / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        
+        return `${hours.toString().padStart(2, '0')}.${minutes.toString().padStart(2, '0')}.${seconds.toString().padStart(2, '0')}`;
+    }
+
     // Send autopost webhook log
     sendAutopostLog(action, channel, message = null, error = null, delay = null, uptime = null, postCount = null) {
         if (!this.config.webhookUrl || this.config.webhookUrl === 'YOUR_WEBHOOK_URL_HERE') {
@@ -57,7 +69,7 @@ class WebhookLogger {
                         },
                         {
                             name: this.t('webhook.autopost.fields.uptime_app'),
-                            value: uptime || "N/A"
+                            value: this.formatUptime(uptime)
                         },
                         {
                             name: this.t('webhook.autopost.fields.post_counter'),
