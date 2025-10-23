@@ -218,7 +218,7 @@ ${this.t('commands.help.commands')}
 ${this.t('commands.help.contact')}`;
     }
 
-    // Handle command execution
+    // Handle command execution - FIXED VERSION
     async executeCommand(message) {
         try {
             if (!message.content.startsWith(this.config.prefix)) return;
@@ -226,62 +226,133 @@ ${this.t('commands.help.contact')}`;
             const args = message.content.slice(this.config.prefix.length).trim().split(/ +/);
             const command = args.shift().toLowerCase();
 
+            // Handle each command independently to prevent blocking
             switch (command) {
                 case 'post':
-                    if (args.length < 4) {
-                        await message.reply(`Usage: ${this.config.prefix}post <index> <message> <delay_minutes> <channel_id>\n\n**Note:** Attach files to your command message to include them in auto posts!`);
-                        return;
-                    }
-
-                    const [index, ...messageParts] = args;
-                    const delay = parseInt(args[args.length - 2]);
-                    const channelId = args[args.length - 1];
-                    const messageText = messageParts.slice(0, -2).join(' ');
-
-                    if (isNaN(delay) || delay < 1) {
-                        await message.reply('Delay must be a number greater than 0');
-                        return;
-                    }
-
-                    if (this.autoPosts.has(index)) {
-                        await message.reply(`Auto post ${index} already exists`);
-                        return;
-                    }
-
-                    // Extract attachments from the message
-                    const attachments = message.attachments.map(att => ({
-                        url: att.url,
-                        name: att.name
-                    }));
-
-                    await this.startAutoPost(index, messageText, delay, channelId, attachments, message);
+                    await this.handlePostCommand(message, args);
                     break;
 
                 case 'index':
-                    await message.reply(this.getAutoPostList());
+                    await this.handleIndexCommand(message);
                     break;
 
                 case 'stop':
-                    const stopIndex = args[0];
-                    const result = this.stopAutoPost(stopIndex);
-                    await message.reply(result);
+                    await this.handleStopCommand(message, args);
                     break;
 
                 case 'ping':
-                    const pingInfo = await this.getPingInfo();
-                    await message.reply(pingInfo);
+                    await this.handlePingCommand(message);
                     break;
 
                 case 'help':
-                    await message.reply(this.getHelpInfo());
+                    await this.handleHelpCommand(message);
                     break;
 
                 default:
-                    await message.reply(`Unknown command. Use ${this.config.prefix}help for available commands.`);
+                    await this.handleUnknownCommand(message);
             }
         } catch (error) {
             console.error('Command execution error:', error.message);
-            this.webhookLogger.sendActivityLog("Command Error", error.message);
+            this.webhookLogger?.sendActivityLog("Command Error", error.message);
+            
+            // Try to send error message to user
+            try {
+                await message.reply(`❌ Error executing command: ${error.message}`);
+            } catch (replyError) {
+                console.error('Failed to send error reply:', replyError.message);
+            }
+        }
+    }
+
+    // Handle post command
+    async handlePostCommand(message, args) {
+        try {
+            if (args.length < 4) {
+                await message.reply(`Usage: ${this.config.prefix}post <index> <message> <delay_minutes> <channel_id>\\n\\n**Note:** Attach files to your command message to include them in auto posts!`);
+                return;
+            }
+
+            const [index, ...messageParts] = args;
+            const delay = parseInt(args[args.length - 2]);
+            const channelId = args[args.length - 1];
+            const messageText = messageParts.slice(0, -2).join(' ');
+
+            if (isNaN(delay) || delay < 1) {
+                await message.reply('Delay must be a number greater than 0');
+                return;
+            }
+
+            if (this.autoPosts.has(index)) {
+                await message.reply(`Auto post ${index} already exists`);
+                return;
+            }
+
+            // Extract attachments from the message
+            const attachments = message.attachments.map(att => ({
+                url: att.url,
+                name: att.name
+            }));
+
+            // Start auto post asynchronously without blocking
+            this.startAutoPost(index, messageText, delay, channelId, attachments, message).catch(error => {
+                console.error('Error in startAutoPost:', error.message);
+                this.webhookLogger?.sendActivityLog("Auto Post Start Error", error.message);
+            });
+        } catch (error) {
+            console.error('Error in handlePostCommand:', error.message);
+            await message.reply(`❌ Error starting auto post: ${error.message}`);
+        }
+    }
+
+    // Handle index command
+    async handleIndexCommand(message) {
+        try {
+            await message.reply(this.getAutoPostList());
+        } catch (error) {
+            console.error('Error in handleIndexCommand:', error.message);
+            await message.reply(`❌ Error getting auto post list: ${error.message}`);
+        }
+    }
+
+    // Handle stop command
+    async handleStopCommand(message, args) {
+        try {
+            const stopIndex = args[0];
+            const result = this.stopAutoPost(stopIndex);
+            await message.reply(result);
+        } catch (error) {
+            console.error('Error in handleStopCommand:', error.message);
+            await message.reply(`❌ Error stopping auto post: ${error.message}`);
+        }
+    }
+
+    // Handle ping command
+    async handlePingCommand(message) {
+        try {
+            const pingInfo = await this.getPingInfo();
+            await message.reply(pingInfo);
+        } catch (error) {
+            console.error('Error in handlePingCommand:', error.message);
+            await message.reply(`❌ Error getting ping info: ${error.message}`);
+        }
+    }
+
+    // Handle help command
+    async handleHelpCommand(message) {
+        try {
+            await message.reply(this.getHelpInfo());
+        } catch (error) {
+            console.error('Error in handleHelpCommand:', error.message);
+            await message.reply(`❌ Error getting help info: ${error.message}`);
+        }
+    }
+
+    // Handle unknown command
+    async handleUnknownCommand(message) {
+        try {
+            await message.reply(`Unknown command. Use ${this.config.prefix}help for available commands.`);
+        } catch (error) {
+            console.error('Error in handleUnknownCommand:', error.message);
         }
     }
 }
