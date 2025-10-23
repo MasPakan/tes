@@ -1,373 +1,161 @@
-# API Documentation
+# 📚 API Documentation
 
-This document describes the API and module structure of the Discord Selfbot Automation project with multi-language support and advanced error recovery.
+Quick reference for Discord Selfbot Automation modules and commands.
 
-## Module API
+## 🏗️ Module Overview
+
+| Module | Purpose | Key Features |
+|--------|---------|--------------|
+| **Bot** | Main orchestration | Client management, error recovery |
+| **CLI** | Interactive interface | Account management, language selection |
+| **Commands** | Bot command handling | Auto posting, help system |
+| **Webhook** | Logging system | Activity logs, error tracking |
+| **Language** | Multi-language support | Translation, parameter interpolation |
+| **Error Recovery** | Advanced error handling | Circuit breaker, exponential backoff |
+
+## 🤖 Bot Commands
+
+### Auto Posting
+```bash
+!post <index> <message> <delay_minutes> <channel_id>
+```
+**Example**: `!post 1 "Hello World!" 5 123456789012345678`
+
+### Management
+```bash
+!index          # List active posts
+!stop <index>   # Stop specific post
+!stop           # Stop all posts
+!ping           # Check latency
+!help           # Show help
+```
+
+## 🏛️ Core Modules
 
 ### Bot Module (`src/bot.js`)
-
-Main bot orchestration class.
-
-#### `DiscordSelfbot`
-
 ```javascript
 const DiscordSelfbot = require('./src/bot');
 const bot = new DiscordSelfbot();
+
+// Methods
+bot.start()                    // Start with CLI
+bot.initializeClient(config)   // Setup Discord client
+bot.setupErrorRecovery()       // Setup error recovery
+bot.shutdown(signal)           // Graceful shutdown
 ```
 
-**Methods:**
-- `start()` - Start the bot with CLI
-- `initializeClient(config)` - Initialize Discord client with language support
-- `setupEventHandlers()` - Setup event listeners with error recovery
-- `setupErrorRecovery()` - Setup advanced error recovery system
-- `shutdown(signal)` - Graceful shutdown
-- `t(key, params)` - Translation helper method
-
 ### CLI Module (`src/cli/cli.js`)
-
-Interactive command-line interface.
-
-#### `DiscordSelfbotCLI`
-
 ```javascript
 const DiscordSelfbotCLI = require('./src/cli/cli');
 const cli = new DiscordSelfbotCLI();
+
+// Methods
+cli.start()                    // Start CLI
+cli.showMainMenu()             // Show main menu
+cli.showNewAccountFlow()       // New account wizard
+cli.t(key, params)             // Translation helper
 ```
 
-**Methods:**
-- `start()` - Start the CLI
-- `showMainMenu()` - Show main menu with language support
-- `showAccountMenu(username, account)` - Show account menu
-- `showNewAccountFlow(existingUsername)` - New account wizard with language selection
-- `loadLanguageSettings()` - Load language from configuration
-- `updateLanguageSetting(language)` - Update language setting
-- `t(key, params)` - Translation helper method
-
 ### Commands Module (`src/commands/commands.js`)
-
-Bot command handling system.
-
-#### `CommandHandler`
-
 ```javascript
 const CommandHandler = require('./src/commands/commands');
 const handler = new CommandHandler(client, config, webhookLogger, autoPosts, languageManager);
+
+// Methods
+handler.executeCommand(message)     // Execute commands
+handler.startAutoPost(...)          // Start auto posting
+handler.stopAutoPost(index)         // Stop auto posting
+handler.t(key, params)              // Translation helper
 ```
 
-**Methods:**
-- `executeCommand(message)` - Execute bot commands with localized responses
-- `startAutoPost(index, message, delay, channelId, attachments)` - Start auto posting
-- `stopAutoPost(index)` - Stop auto posting
-- `getAutoPostList()` - Get active auto posts with localized output
-- `getPingInfo()` - Get ping information with localized output
-- `getHelpInfo()` - Get help information with localized output
-- `t(key, params)` - Translation helper method
+## 🌍 Language System
 
-### Webhook Module (`src/webhook/webhook.js`)
-
-Webhook logging system.
-
-#### `WebhookLogger`
-
-```javascript
-const WebhookLogger = require('./src/webhook/webhook');
-const logger = new WebhookLogger(config);
-```
-
-**Methods:**
-- `sendAutopostLog(action, channel, message, error, delay, uptime, postCount)` - Send localized autopost log
-- `sendActivityLog(activity, error)` - Send localized activity log
-- `sendWebhookRequest(webhookData)` - Send webhook request
-- `updateConfig(newConfig)` - Update logger config
-- `t(key, params)` - Translation helper method
-
-### Config Module (`src/config/manager.js`)
-
-Configuration management system.
-
-#### `ConfigManager`
-
-```javascript
-const ConfigManager = require('./src/config/manager');
-const config = new ConfigManager();
-```
-
-**Methods:**
-- `loadConfig()` - Load configuration
-- `saveConfig()` - Save configuration
-- `getAccounts()` - Get all accounts
-- `saveAccount(username, accountData)` - Save account
-- `removeAccount(username)` - Remove account
-- `getSettings()` - Get settings
-
-### Language Module (`src/utils/language.js`)
-
-Language management system with multi-language support.
-
-#### `LanguageManager`
-
+### Language Manager (`src/utils/language.js`)
 ```javascript
 const LanguageManager = require('./src/utils/language');
 const lang = new LanguageManager();
+
+// Methods
+lang.setLanguage('en')              // Set language
+lang.t('cli.welcome.title')         // Translate key
+lang.t('welcome.message', {name: 'John'})  // With parameters
+lang.getAvailableLanguages()        // Get supported languages
 ```
-
-**Methods:**
-- `setLanguage(language)` - Set current language
-- `getLanguage()` - Get current language
-- `getAvailableLanguages()` - Get available languages
-- `t(key, params)` - Translate key with parameters
-- `replaceParams(text, params)` - Replace parameters in text
-- `addLanguage(language, translations)` - Add new language at runtime
-- `getAllTranslations(key)` - Get all translations for a key
-- `validateLanguage(language)` - Validate language completeness
-
-### Error Recovery Module (`src/utils/errorRecovery.js`)
-
-Advanced error recovery system with exponential backoff and circuit breaker.
-
-#### `ErrorRecoveryManager`
-
-```javascript
-const ErrorRecoveryManager = require('./src/utils/errorRecovery');
-const recovery = new ErrorRecoveryManager(options);
-```
-
-**Methods:**
-- `handleError(error, context)` - Handle error with recovery
-- `registerStrategy(errorType, strategy)` - Register recovery strategy
-- `isCircuitOpen()` - Check if circuit breaker is open
-- `recordFailure()` - Record failure for circuit breaker
-- `resetCircuitBreaker()` - Reset circuit breaker
-- `reset()` - Reset recovery state
-- `getStatus()` - Get recovery status
-- `setupDiscordStrategies()` - Setup Discord-specific strategies
-
-**Events:**
-- `error` - Error occurred
-- `retry` - Retry attempt
-- `recoverySuccess` - Recovery successful
-- `recoveryFailed` - Recovery failed
-- `circuitBreakerOpen` - Circuit breaker opened
-
-### Utils Module (`src/utils/`)
-
-Utility modules for various functions.
-
-#### Update Manager (`src/utils/update.js`)
-
-```javascript
-const RepositoryUpdateManager = require('./src/utils/update');
-const updater = new RepositoryUpdateManager();
-```
-
-**Methods:**
-- `checkForUpdates()` - Check for updates
-- `performUpdate()` - Perform update
-- `showUpdatePrompt()` - Show localized update prompt
-- `t(key, params)` - Translation helper method
-
-#### RPC Manager (`src/utils/rpc.js`)
-
-```javascript
-const RPCManager = require('./src/utils/rpc');
-const rpc = new RPCManager(client, config, languageManager);
-```
-
-**Methods:**
-- `setupRichPresence()` - Setup Rich Presence with localized messages
-- `updateRPCConfig(newConfig)` - Update RPC config
-- `t(key, params)` - Translation helper method
-
-## Command API
-
-### Bot Commands
-
-All commands start with the configured prefix (default: "!").
-
-#### `!post <index> <message> <delay> <channel_id>`
-Start auto posting to a channel.
-
-**Parameters:**
-- `index` - Unique identifier for this auto post
-- `message` - Message content (can include attachments)
-- `delay` - Delay between posts in minutes
-- `channel_id` - Target channel ID
-
-**Example:**
-```
-!post 1 Hello World! 5 123456789012345678
-```
-
-#### `!index`
-List all active auto posts.
-
-**Output:**
-```
-# AUTO POST LIST
-> - **1:** [Ch: <#123456789012345678> - D: 5 A: 0]
-```
-
-#### `!stop [index]`
-Stop auto posting.
-
-**Parameters:**
-- `index` - (Optional) Specific auto post to stop
-- If no index provided, stops all auto posts
-
-#### `!ping`
-Get bot and API latency.
-
-**Output:**
-```
-# 🏓 PONG!
-> - Bot Latency: 45ms
-> - API Latency: 120ms
-```
-
-#### `!help`
-Show help information.
-
-**Output:**
-```
-# SELFBOT BY iHANNSY
-## 🔍FEATURES:
-> - Auto Send Post
-> - Independent WebHook Log For Auto Posting And System
-> - RPC or Activity Profile
-> - Prefix Command Selfbot (Only Selfbot Can Access)
-
-## 🔍Command List
-!post <index> <message w/wo attachment> <delay(minute)> <channels id>
-!index                - To see auto post running list
-!stop                  - To stop all auto post processes
-!stop <index> - To stop the autopost process according to the index
-!ping                  - To see the latency of the selfbot and API
-```
-
-## Event API
-
-### Discord Events
-
-The bot listens to the following Discord events:
-
-- `messageCreate` - Handle incoming messages
-- `ready` - Bot ready event
-- `error` - Client errors
-- `warn` - Client warnings
-- `disconnect` - Bot disconnected
-- `reconnecting` - Bot reconnecting
-- `resume` - Bot reconnected
-
-### Process Events
-
-- `unhandledRejection` - Unhandled promise rejections
-- `uncaughtException` - Uncaught exceptions
-- `warning` - Process warnings
-- `SIGINT` - Graceful shutdown (Ctrl+C)
-- `SIGTERM` - Graceful shutdown
-
-## Language API
-
-### Language Support
-
-The bot supports multiple languages with dynamic switching:
-
-- 🇺🇸 **English** (default)
-- 🇮🇩 **Indonesian** (Bahasa Indonesia)
-
-### Language Files
-
-Language files are located in `src/locales/`:
-- `en.json` - English translations
-- `id.json` - Indonesian translations
 
 ### Translation Keys
-
-All user-facing content uses translation keys:
-
 ```javascript
-// Example usage
-this.t('cli.welcome.title') // "Discord Selfbot Automation"
-this.t('commands.autopost.started', { index: 1, channel_id: '123456789' })
+// CLI messages
+'cli.welcome.title'                 // "Discord Selfbot Automation"
+'cli.menu.main.new_account'         // "➕ New Account"
+
+// Bot commands
+'commands.autopost.started'         // "AUTOPOST STARTED"
+'commands.ping.title'               // "🏓 PONG!"
+
+// Webhook logs
+'webhook.autopost.title'            // "**AUTOPOST** - **PAKAN STORE**"
+'webhook.activity.title'            // "**ACTIVITY** - **PAKAN STORE**"
 ```
 
-### Parameter Interpolation
+## 🛡️ Error Recovery
 
-Translation keys support parameter interpolation:
-
+### Error Recovery Manager (`src/utils/errorRecovery.js`)
 ```javascript
-// Translation file
-{
-  "welcome": {
-    "message": "Welcome {username}! You have {count} messages."
-  }
-}
+const ErrorRecoveryManager = require('./src/utils/errorRecovery');
+const recovery = new ErrorRecoveryManager();
 
-// Usage
-this.t('welcome.message', { username: 'John', count: 5 })
-// Result: "Welcome John! You have 5 messages."
+// Methods
+recovery.handleError(error, context)    // Handle error
+recovery.registerStrategy(type, strategy) // Register strategy
+recovery.isCircuitOpen()                // Check circuit breaker
+recovery.reset()                        // Reset state
+
+// Events
+recovery.on('error', (data) => {})      // Error occurred
+recovery.on('retry', (data) => {})      // Retry attempt
+recovery.on('recoverySuccess', (data) => {}) // Recovery successful
 ```
-
-## Error Recovery API
 
 ### Error Types
+| Type | Description | Strategy |
+|------|-------------|----------|
+| **NETWORK** | Connection errors | Wait, retry, reconnect |
+| **RATELIMIT** | Rate limiting | Wait, retry |
+| **AUTH** | Authentication | Refresh token, reconnect |
+| **PERMISSION** | Permission denied | No retry |
+| **CONNECTION_REFUSED** | Connection refused | Reset connection |
 
-The error recovery system handles different error types:
+## 📊 Webhook System
 
-- **NETWORK** - Connection errors (ECONNRESET, ENOTFOUND, ETIMEDOUT)
-- **RATELIMIT** - Discord rate limiting
-- **AUTH** - Authentication errors
-- **PERMISSION** - Permission errors
-- **NOT_FOUND** - 404 errors
-- **CONNECTION_REFUSED** - Connection refused errors
-- **UNKNOWN** - Generic errors
-
-### Recovery Strategies
-
-Each error type has a specific recovery strategy:
-
+### Webhook Logger (`src/webhook/webhook.js`)
 ```javascript
-// Network errors
-{
-  name: 'network_recovery',
-  maxRetries: 3,
-  backoff: true,
-  actions: ['wait', 'retry', 'reconnect']
-}
+const WebhookLogger = require('./src/webhook/webhook');
+const logger = new WebhookLogger(config);
 
-// Rate limit errors
-{
-  name: 'ratelimit_recovery',
-  maxRetries: 2,
-  backoff: true,
-  actions: ['wait', 'retry']
-}
+// Methods
+logger.sendAutopostLog(action, channel, message, error, delay, uptime, postCount)
+logger.sendActivityLog(activity, error)
+logger.t(key, params)  // Translation helper
 ```
 
-### Circuit Breaker
+### Webhook Types
+- **Autopost Logs** - Detailed auto posting information
+- **Activity Logs** - General bot activities
+- **Error Logs** - Error tracking and monitoring
 
-The circuit breaker prevents spam retries:
-
-- **CLOSED** - Normal operation
-- **OPEN** - Circuit open, no retries
-- **HALF_OPEN** - Testing if service is back
-
-## Configuration API
+## ⚙️ Configuration
 
 ### Configuration Structure
-
-```javascript
+```json
 {
   "accounts": {
     "username": {
       "token": "discord_user_token",
-      "webhookUrl": "discord_webhook_url",
+      "webhookUrl": "webhook_url",
       "prefix": "!",
       "enableRPC": true,
-      "username": "username",
       "language": "en",
-      "createdAt": "2024-01-01T00:00:00.000Z",
-      "lastUsed": "2024-01-01T00:00:00.000Z"
+      "username": "username"
     }
   },
   "settings": {
@@ -379,64 +167,109 @@ The circuit breaker prevents spam retries:
 }
 ```
 
-### Configuration Methods
-
-- `loadConfig()` - Load from file
-- `saveConfig()` - Save to file
-- `getAccount(username)` - Get specific account
-- `saveAccount(username, data)` - Save account
-- `removeAccount(username)` - Remove account
-
-## Error Handling
-
-All modules include comprehensive error handling with advanced recovery:
-
-### Error Recovery Features
-
-- **Exponential Backoff** - 1s, 2s, 4s, 8s, 16s, 30s max with jitter
-- **Circuit Breaker** - Prevents spam retries on repeated failures
-- **Discord-Specific Strategies** - Tailored error handling for Discord API
-- **Event-Driven Recovery** - Comprehensive event logging and monitoring
-- **Graceful Degradation** - Fallback when recovery fails
-- **Jitter Implementation** - Prevents thundering herd problem
-
-### Error Recovery Flow
-
-1. **Error Detection** - Identify error type and context
-2. **Strategy Selection** - Choose appropriate recovery strategy
-3. **Circuit Check** - Check if circuit breaker allows retry
-4. **Backoff Calculation** - Calculate delay with exponential backoff
-5. **Recovery Actions** - Execute recovery actions (wait, retry, reconnect)
-6. **Success/Failure** - Update circuit breaker based on result
-
-### Error Events
-
+### Config Manager (`src/config/manager.js`)
 ```javascript
-recovery.on('error', ({ error, context, retryCount }) => {
-  console.log(`Error occurred: ${error.message}`);
-});
+const ConfigManager = require('./src/config/manager');
+const config = new ConfigManager();
 
-recovery.on('retry', ({ error, retryCount, delay, strategy }) => {
-  console.log(`Retrying in ${delay}ms using ${strategy}`);
-});
+// Methods
+config.loadConfig()              // Load from file
+config.saveConfig()              // Save to file
+config.getAccount(username)      // Get account
+config.saveAccount(username, data) // Save account
+config.removeAccount(username)   // Remove account
+```
 
-recovery.on('recoverySuccess', ({ retryCount }) => {
-  console.log(`Recovery successful after ${retryCount} attempts`);
+## 🔧 Utility Modules
+
+### Update Manager (`src/utils/update.js`)
+```javascript
+const RepositoryUpdateManager = require('./src/utils/update');
+const updater = new RepositoryUpdateManager();
+
+// Methods
+updater.checkForUpdates()        // Check for updates
+updater.performUpdate()          // Perform update
+updater.t(key, params)           // Translation helper
+```
+
+### RPC Manager (`src/utils/rpc.js`)
+```javascript
+const RPCManager = require('./src/utils/rpc');
+const rpc = new RPCManager(client, config, languageManager);
+
+// Methods
+rpc.setupRichPresence()          // Setup RPC
+rpc.updateRPCConfig(config)      // Update config
+rpc.t(key, params)               // Translation helper
+```
+
+## 🎯 Event System
+
+### Discord Events
+- `messageCreate` - Handle messages
+- `ready` - Bot ready
+- `error` - Client errors
+- `disconnect` - Bot disconnected
+- `reconnecting` - Bot reconnecting
+
+### Process Events
+- `unhandledRejection` - Unhandled promise rejections
+- `uncaughtException` - Uncaught exceptions
+- `SIGINT` - Graceful shutdown (Ctrl+C)
+- `SIGTERM` - Graceful shutdown
+
+### Error Recovery Events
+- `error` - Error occurred
+- `retry` - Retry attempt
+- `recoverySuccess` - Recovery successful
+- `recoveryFailed` - Recovery failed
+- `circuitBreakerOpen` - Circuit breaker opened
+
+## 🔒 Security
+
+- **Token Protection** - Secure token storage
+- **Input Validation** - Validate all inputs
+- **Error Sanitization** - Safe error messages
+- **Webhook Security** - Secure webhook requests
+
+## 📝 Examples
+
+### Basic Usage
+```javascript
+const DiscordSelfbot = require('./src/bot');
+const bot = new DiscordSelfbot();
+
+// Start bot
+bot.start();
+```
+
+### Custom Language
+```javascript
+const LanguageManager = require('./src/utils/language');
+const lang = new LanguageManager();
+
+// Set language
+lang.setLanguage('id');
+
+// Translate with parameters
+const message = lang.t('welcome.message', {username: 'John'});
+```
+
+### Error Recovery
+```javascript
+const ErrorRecoveryManager = require('./src/utils/errorRecovery');
+const recovery = new ErrorRecoveryManager();
+
+// Handle error
+recovery.handleError(error, {context: 'login'});
+
+// Listen for events
+recovery.on('recoverySuccess', (data) => {
+  console.log('Recovery successful!');
 });
 ```
 
-### Traditional Error Handling
+---
 
-- Try-catch blocks for async operations
-- Graceful degradation on errors
-- Webhook logging for errors
-- Automatic retry with exponential backoff
-- Graceful shutdown on critical errors
-
-## Security Considerations
-
-- Never expose Discord tokens
-- Use webhooks only on trusted servers
-- Validate all user inputs
-- Handle errors gracefully
-- Log security events
+**Need more details?** Check the source code or open an issue! 🚀
