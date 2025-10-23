@@ -118,7 +118,7 @@
         "post_counter": "Penghitung Post",
         "status": "Status"
       },
-      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\\nKami Tumbuh Karena Anda Percaya.\\nJujur Dari Awal, Selalu Aman.\\n{datetime}",
+      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\nKami Tumbuh Karena Anda Percaya.\nJujur Dari Awal, Selalu Aman.\n{datetime}",
       "username": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - {username}"
     },
     "activity": {
@@ -128,7 +128,7 @@
         "client_user": "Pengguna Klien",
         "activity": "Aktivitas"
       },
-      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\\n{datetime}",
+      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\n{datetime}",
       "username": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - {username}"
     },
     "images": {
