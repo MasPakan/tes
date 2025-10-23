@@ -52,12 +52,19 @@ class DiscordSelfbotCLI {
 
     ensureConfigFile() {
         if (!fs.existsSync(this.configFile)) {
+            // Ensure the config directory exists
+            const configDir = path.dirname(this.configFile);
+            if (!fs.existsSync(configDir)) {
+                fs.mkdirSync(configDir, { recursive: true });
+            }
+            
             const defaultConfig = {
                 accounts: {},
                 settings: {
                     defaultPrefix: "!",
                     defaultRPC: true,
-                    defaultWebhook: false
+                    defaultWebhook: false,
+                    language: "en"
                 }
             };
             fs.writeFileSync(this.configFile, JSON.stringify(defaultConfig, null, 2));
@@ -76,6 +83,12 @@ class DiscordSelfbotCLI {
 
     saveAccounts(accounts) {
         try {
+            // Ensure the config directory exists
+            const configDir = path.dirname(this.configFile);
+            if (!fs.existsSync(configDir)) {
+                fs.mkdirSync(configDir, { recursive: true });
+            }
+            
             const data = fs.readFileSync(this.configFile, 'utf8');
             const config = JSON.parse(data);
             config.accounts = accounts;
@@ -300,6 +313,12 @@ class DiscordSelfbotCLI {
 
     updateLanguageSetting(language) {
         try {
+            // Ensure the config directory exists
+            const configDir = path.dirname(this.configFile);
+            if (!fs.existsSync(configDir)) {
+                fs.mkdirSync(configDir, { recursive: true });
+            }
+            
             const data = fs.readFileSync(this.configFile, 'utf8');
             const config = JSON.parse(data);
             if (!config.settings) config.settings = {};

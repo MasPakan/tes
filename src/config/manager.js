@@ -11,7 +11,17 @@ class ConfigManager {
         try {
             if (fs.existsSync(this.configFile)) {
                 const data = fs.readFileSync(this.configFile, 'utf8');
-                return JSON.parse(data);
+                const config = JSON.parse(data);
+                
+                // Ensure language field exists in settings
+                if (!config.settings) {
+                    config.settings = {};
+                }
+                if (!config.settings.language) {
+                    config.settings.language = "en";
+                }
+                
+                return config;
             }
         } catch (error) {
             console.error('❌ Error loading configuration:', error.message);
@@ -33,6 +43,12 @@ class ConfigManager {
 
     saveConfig() {
         try {
+            // Ensure the config directory exists
+            const configDir = path.dirname(this.configFile);
+            if (!fs.existsSync(configDir)) {
+                fs.mkdirSync(configDir, { recursive: true });
+            }
+            
             fs.writeFileSync(this.configFile, JSON.stringify(this.config, null, 2));
         } catch (error) {
             console.error('❌ Error saving configuration:', error.message);
