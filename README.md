@@ -1,4 +1,4 @@
-# 🤖 Discord Selfbot Automation
+# 🤖 Discord Selfbot Automation - MASPAKAN
 
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/MasPakan/tes)
 [![Node.js](https://img.shields.io/badge/node.js-16+-green.svg)](https://nodejs.org/)
