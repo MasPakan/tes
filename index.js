@@ -38,6 +38,7 @@ const client = new Client({
 // Auto post storage
 const autoPosts = new Map();
 let postIndex = 1;
+let postCount = 0;
 
 // Utility functions
 function formatDateTime() {
