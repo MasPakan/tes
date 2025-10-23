@@ -1,11 +1,16 @@
 class CommandHandler {
-    constructor(client, config, webhookLogger, autoPosts) {
+    constructor(client, config, webhookLogger, autoPosts, languageManager) {
         this.client = client;
         this.config = config;
         this.webhookLogger = webhookLogger;
         this.autoPosts = autoPosts;
+        this.languageManager = languageManager;
         this.postIndex = 1;
         this.postCount = 0;
+    }
+
+    t(key, params = {}) {
+        return this.languageManager.t(key, params);
     }
 
     // Format date time in specific format: Thursday, 23 October 2025 | 06.11.23
@@ -70,7 +75,12 @@ class CommandHandler {
                 startTime: Date.now()
             });
 
-            await this.client.user.send(`# AUTOPOST STARTED\n> - Index **${index}**\n> - Running in **<#${channelId}>**'s\n> - Delay **${delay}** minute(s)\n> - Attachment(s) **${attachments.length}**`);
+            await this.client.user.send(this.t('commands.autopost.started', {
+                index,
+                channel_id: channelId,
+                delay,
+                count: attachments.length
+            }));
             this.webhookLogger.sendAutopostLog("Auto Post Started", channel, message, null, delay, null, 0);
         } catch (error) {
             console.error('Error starting auto post:', error.message);
@@ -85,9 +95,9 @@ class CommandHandler {
             if (autoPost) {
                 clearInterval(autoPost.intervalId);
                 this.autoPosts.delete(index);
-                return `Auto post ${index} stopped`;
+                return this.t('commands.autopost.stopped', { index });
             }
-            return `Auto post ${index} not found`;
+            return this.t('commands.autopost.not_found', { index });
         } else {
             // Stop all auto posts
             let stoppedCount = 0;
@@ -100,19 +110,24 @@ class CommandHandler {
                     console.error(`Error stopping auto post ${key}:`, error.message);
                 }
             });
-            return `Stopped ${stoppedCount} auto posts`;
+            return this.t('commands.autopost.stopped_all');
         }
     }
 
     // Get auto post list
     getAutoPostList() {
         if (this.autoPosts.size === 0) {
-            return "# AUTO POST LIST\n> - **No Auto Post Running**";
+            return this.t('commands.autopost.list_empty');
         }
 
-        let list = "# AUTO POST LIST\n";
+        let list = this.t('commands.autopost.list_empty').split('\n')[0] + '\n';
         this.autoPosts.forEach((autoPost, index) => {
-            list += `> - **${index}:** [Ch: <#${autoPost.channel.id}> - D: ${autoPost.delay} A: ${autoPost.attachments.length}]\n`;
+            list += this.t('commands.autopost.list_item', {
+                index,
+                channel_id: autoPost.channel.id,
+                delay: autoPost.delay,
+                count: autoPost.attachments.length
+            }) + '\n';
         });
 
         return list;
@@ -123,28 +138,19 @@ class CommandHandler {
         const botLatency = this.client.ws.ping;
         const apiLatency = await this.client.ws.ping;
         
-        return `# 🏓 PONG!\n> - Bot Latency: ${botLatency}ms\n> - API Latency: ${apiLatency}ms`;
+        return this.t('commands.ping.title', {
+            bot_latency: botLatency,
+            api_latency: apiLatency
+        });
     }
 
     // Get help information
     getHelpInfo() {
-        return `# SELFBOT BY iHANNSY
-## 🔍FEATURES:
-> - Auto Send Post
-> - Independent WebHook Log For Auto Posting And System
-> - RPC or Activity Profile
-> - Prefix Command Selfbot (Only Selfbot Can Access)
+        return `${this.t('commands.help.title')}
+${this.t('commands.help.features')}
 
-## 🔍Command List
-\`\`\`css
-${this.config.prefix}post <index> <message w/wo attachment> <delay(minute)> <channels id>
-${this.config.prefix}index                - To see auto post running list
-${this.config.prefix}stop                  - To stop all auto post processes
-${this.config.prefix}stop <index> - To stop the autopost process according to the index
-${this.config.prefix}ping                  - To see the latency of the selfbot and API
-\`\`\`
-## CONTACT BELOW TO CONTRIBUTE
-[.](https://instagram.com/saya.p4rhan) [.](https://github.com/MasPakan/tes.git) [.](https://discord.gg/8wM2tNhUdB)`;
+${this.t('commands.help.commands')}
+${this.t('commands.help.contact')}`;
     }
 
     // Handle command execution

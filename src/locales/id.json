@@ -1,0 +1,172 @@
+{
+  "cli": {
+    "welcome": {
+      "title": "Discord Selfbot Automation",
+      "warning": "⚠️  Peringatan: Menggunakan selfbot melanggar ToS Discord. Gunakan dengan risiko sendiri!",
+      "ascii_art": "████████████████████████████████████████████████████████████\n████████████████████████████████████████████████████████████\n████████████████████████████████████████████████████████████\n████████████████████████████████████████████████████████████\n████████████████████████████████████████████████████████████\n███████████████████████████████▓████████████████████████████\n██████████████████▓▓█████████▓░░▓███████████████████████████\n████████████████▓▒▓▓▓▓████▓▒▒░ ░░▒▓██████▓░█████████████████\n████████████████░▒▓▒▓▓██████▓▒ ▒▓██████▓▒░ ░▓███████████████\n███████████████▒░▒▒▒▓▓███████▒░▓█████▓▒▒▓▓░▒▓███████████████\n███████████████░▒▓▒▒▓▓███▓▓██▓▒███████▒▒▓█░██▓▓▓████████████\n██████████████▓░▒▓▒▓▓▓██▓▒▒░░░░░▒▒▒▒▓▓▓▓▓█▓██▒▓▓████████████\n██████████████▒░▓▒▒▒▓▓▓██▓██▒░░░     ░░░░░░▒▒▒▒▓▓████████████\n██████████████▒▒▓▒▒▓▓▓▓█▓███▓▒▒░░░░░      ░░▓▓▓▓████████████\n█████████████▓░▒▓▒▓▓▓▓▓▓▓█████▓▓▓▒▒▒░░░▒▓▓▓███▓▓████████████\n█████████████▓▒▓▓▒▒▒▓▓▓▓███████████▓██████████▓▓████████████\n█████████████▒▒▓▒▒░▒▒▒▒▓▓▓▓▓▓▓▓▓▓▓█████████▓▓█▓▒████████████\n█████████████░▒▓▒▓▓▓███████████████████████▓▓█▓▒████████████\n█████████████▒▓█▓██████████████████████████▓██▓▓████████████\n██████████████▓███████▓▓▓████████████████████▓▓▓████████████\n███████████████████▒▓█░▒▒▓█████████████████▓▓▓██████████████\n██████████████████▓░▓▓░░░▓███████████▓██▓███████████████████\n██████████████████▓▓█▓▓▓▓███████████▓▓█▓▒███████████████████\n████████████████████████████████▓▒▒▓▓▓█▓▓███████████████████\n████████████████████████████████████████████████████████████"
+    },
+    "menu": {
+      "main": {
+        "title": "Pilih akun atau aksi:",
+        "new_account": "➕ Akun Baru",
+        "quit": "❌ Keluar",
+        "account": "👤 {username}"
+      },
+      "account": {
+        "title": "Akun: {username}\nApa yang ingin Anda lakukan?",
+        "start_bot": "🚀 Mulai Bot",
+        "new_config": "⚙️ Konfigurasi Baru",
+        "remove_account": "🗑️ Hapus Akun",
+        "back": "⬅️ Kembali ke Menu Utama"
+      }
+    },
+    "account_flow": {
+      "title": "🔧 Konfigurasi Akun Baru",
+      "token_prompt": "Masukkan token pengguna Discord Anda:",
+      "token_validation": "Silakan masukkan token pengguna Discord yang valid",
+      "webhook_prompt": "Aktifkan logging webhook?",
+      "webhook_url_prompt": "Masukkan URL webhook:",
+      "webhook_validation": "Silakan masukkan URL webhook Discord yang valid",
+      "prefix_prompt": "Masukkan prefix perintah:",
+      "prefix_validation": "Prefix harus 1-5 karakter",
+      "rpc_prompt": "Aktifkan Rich Presence (RPC)?",
+      "username_detected": "✅ Username terdeteksi: {username}",
+      "username_fallback": "⚠️  Tidak dapat mengambil username dari Discord API, menggunakan default",
+      "success": "✅ Akun \"{username}\" berhasil dikonfigurasi!",
+      "config_saved": "🔧 Konfigurasi disimpan ke ihannsy.json"
+    },
+    "remove_account": {
+      "confirm": "Apakah Anda yakin ingin menghapus akun \"{username}\"?",
+      "success": "✅ Akun \"{username}\" berhasil dihapus!"
+    },
+    "goodbye": "👋 Selamat tinggal!",
+    "updates": {
+      "checking": "🔄 Memeriksa pembaruan...",
+      "available": "🆕 Pembaruan tersedia!",
+      "latest": "✅ Anda menggunakan versi terbaru!",
+      "error": "⚠️  Tidak dapat memeriksa pembaruan. Melanjutkan..."
+    }
+  },
+  "bot": {
+    "startup": {
+      "starting": "🚀 Memulai bot untuk {username}...",
+      "logged_in": "✅ Masuk sebagai {username}",
+      "disconnected": "🔌 Bot Terputus",
+      "reconnecting": "🔄 Bot Menyambung Ulang...",
+      "reconnected": "✅ Bot Tersambung Ulang"
+    },
+    "errors": {
+      "fatal": "❌ Kesalahan fatal di main: {error}",
+      "restarting": "🔄 Memulai ulang dalam 5 detik...",
+      "shutdown": "🛑 Menerima {signal}, mematikan dengan baik...",
+      "shutdown_complete": "✅ Matikan selesai",
+      "shutdown_error": "❌ Kesalahan saat mematikan: {error}",
+      "login_failed": "❌ Percobaan login {attempt} gagal: {error}",
+      "retrying": "🔄 Mencoba ulang dalam {delay} detik...",
+      "no_config": "❌ Tidak ada konfigurasi yang disediakan, keluar...",
+      "unhandled_main": "❌ Kesalahan main yang tidak tertangani: {error}"
+    },
+    "recovery": {
+      "auto_reconnect": "🔄 Auto-menyambung ulang dalam {delay} detik...",
+      "max_retries": "❌ Mencapai batas percobaan maksimal. Silakan periksa koneksi Anda.",
+      "recovery_success": "✅ Berhasil pulih dari kesalahan",
+      "recovery_failed": "❌ Pemulihan gagal: {error}",
+      "backoff_delay": "⏳ Menggunakan exponential backoff: {delay} detik"
+    }
+  },
+  "commands": {
+    "autopost": {
+      "started": "# AUTOPOST DIMULAI\n> - Index **{index}**\n> - Berjalan di **<#{channel_id}>**'s\n> - Delay **{delay}** menit\n> - Lampiran **{count}**",
+      "stopped": "✅ Auto post {index} dihentikan",
+      "stopped_all": "✅ Semua auto post dihentikan",
+      "not_found": "❌ Auto post {index} tidak ditemukan",
+      "list_empty": "# DAFTAR AUTO POST\n> - **Tidak Ada Auto Post yang Berjalan**",
+      "list_item": "# DAFTAR AUTO POST\n> - **{index}:** [Ch: <#{channel_id}> - D: {delay} A: {count}]"
+    },
+    "ping": {
+      "title": "# 🏓 PONG!\n> - Latensi Bot: {bot_latency}ms\n> - Latensi API: {api_latency}ms"
+    },
+    "help": {
+      "title": "# SELFBOT BY iHANNSY",
+      "features": "## 🔍FITUR:\n> - Auto Kirim Post\n> - Log WebHook Independen Untuk Auto Posting Dan Sistem\n> - RPC atau Profil Aktivitas\n> - Perintah Prefix Selfbot (Hanya Selfbot Yang Bisa Akses)",
+      "commands": "## 🔍Daftar Perintah\n```css\n!post <index> <pesan w/wo lampiran> <delay(menit)> <id channel>\n!index                - Untuk melihat daftar auto post yang berjalan\n!stop                  - Untuk menghentikan semua proses auto post\n!stop <index> - Untuk menghentikan proses autopost sesuai index\n!ping                  - Untuk melihat latensi selfbot dan API\n```",
+      "contact": "## HUBUNGI DI BAWAH UNTUK BERKONTRIBUSI\n[.](https://instagram.com/saya.p4rhan) [.](https://github.com/MasPakan/tes.git) [.](https://discord.gg/8wM2tNhUdB)"
+    },
+    "errors": {
+      "invalid_command": "❌ Perintah tidak valid. Gunakan !help untuk perintah yang tersedia.",
+      "missing_args": "❌ Argumen yang diperlukan hilang. Gunakan !help untuk penggunaan perintah.",
+      "invalid_index": "❌ Index tidak valid. Index harus berupa angka.",
+      "invalid_delay": "❌ Delay tidak valid. Delay harus berupa angka dalam menit.",
+      "invalid_channel": "❌ ID channel tidak valid.",
+      "channel_not_found": "❌ Channel tidak ditemukan atau tidak ada akses.",
+      "permission_denied": "❌ Izin ditolak untuk mengirim pesan di channel ini.",
+      "rate_limited": "⏳ Rate limited. Silakan tunggu sebelum mencoba lagi.",
+      "attachment_error": "❌ Kesalahan memproses lampiran: {error}",
+      "webhook_error": "❌ Kesalahan webhook: {error}",
+      "rpc_error": "❌ Kesalahan RPC: {error}"
+    }
+  },
+  "webhook": {
+    "autopost": {
+      "title": "**AUTOPOST** - **PAKAN STORE** - **AD & PROMOTE**",
+      "description": "Webhook Log Autopostin': Fitur ini memudahkan integrasi dengan sistem pihak ketiga, karena menangani payload log posting otomatis. Itu adalah kunci nyata untuk memeriksa kesehatan sistem dan melacak riwayat.",
+      "fields": {
+        "client_user": "Pengguna Klien",
+        "channel_post": "Channel Post",
+        "delay_per_message": "Delay per Pesan",
+        "uptime_app": "Uptime Aplikasi",
+        "post_counter": "Penghitung Post",
+        "status": "Status"
+      },
+      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\\nKami Tumbuh Karena Anda Percaya.\\nJujur Dari Awal, Selalu Aman.\\n{datetime}",
+      "username": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - {username}"
+    },
+    "activity": {
+      "title": "**AUTOPOST** - **PAKAN STORE** - **AD & PROMOTE**",
+      "description": "Webhook Log Autopostin': Fitur ini memudahkan integrasi dengan sistem pihak ketiga, karena menangani payload log posting otomatis. Itu adalah kunci nyata untuk memeriksa kesehatan sistem dan melacak riwayat.",
+      "fields": {
+        "client_user": "Pengguna Klien",
+        "activity": "Aktivitas"
+      },
+      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\\n{datetime}",
+      "username": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - {username}"
+    },
+    "images": {
+      "main": "https://cdn.discordapp.com/attachments/1407966960498642965/1410705503692132503/Proyek_Baru_129_F60CEC6.gif?ex=68f92e61&is=68f7dce1&hm=ca4d13875c6725e7c303fcc377a2f45aab0a3e1e0fe8bf9b950705a20f161c0e&",
+      "thumbnail": "https://cdn.discordapp.com/attachments/1407966960498642965/1430088592851472435/imqualtz_musicaldown.com_1760959133.jpg?ex=68f92a0a&is=68f7d88a&hm=cd2087dce3b2eea6d76d609cd9384f27d41d77476f5ef05506025c0c135aed5f&"
+    }
+  },
+  "rpc": {
+    "setup": "🎮 Mengatur Rich Presence...",
+    "enabled": "✅ Rich Presence diaktifkan",
+    "disabled": "❌ Rich Presence dinonaktifkan",
+    "error": "❌ Kesalahan mengatur Rich Presence: {error}"
+  },
+  "update": {
+    "checking": "🔄 Memeriksa pembaruan...",
+    "available": "🆕 Pembaruan tersedia!",
+    "latest": "✅ Anda menggunakan versi terbaru!",
+    "error": "❌ Kesalahan memeriksa pembaruan: {error}",
+    "prompt": "Apakah Anda ingin memperbarui ke versi terbaru?",
+    "updating": "🔄 Memperbarui...",
+    "updated": "✅ Pembaruan berhasil diselesaikan!",
+    "update_failed": "❌ Pembaruan gagal: {error}",
+    "restart_required": "🔄 Silakan restart aplikasi untuk menerapkan perubahan."
+  },
+  "common": {
+    "yes": "Ya",
+    "no": "Tidak",
+    "cancel": "Batal",
+    "confirm": "Konfirmasi",
+    "error": "Kesalahan",
+    "success": "Berhasil",
+    "warning": "Peringatan",
+    "info": "Info",
+    "loading": "Memuat...",
+    "retry": "Coba Ulang",
+    "skip": "Lewati",
+    "back": "Kembali",
+    "next": "Lanjut",
+    "finish": "Selesai"
+  }
+}

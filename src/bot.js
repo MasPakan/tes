@@ -4,20 +4,65 @@ const WebhookLogger = require('./webhook/webhook');
 const CommandHandler = require('./commands/commands');
 const RPCManager = require('./utils/rpc');
 const ConfigManager = require('./config/manager');
+const LanguageManager = require('./utils/language');
+const ErrorRecoveryManager = require('./utils/errorRecovery');
 
 class DiscordSelfbot {
     constructor() {
         this.configManager = new ConfigManager();
+        this.languageManager = new LanguageManager();
+        this.errorRecovery = new ErrorRecoveryManager({
+            maxRetries: 5,
+            baseDelay: 1000,
+            maxDelay: 30000,
+            backoffMultiplier: 2,
+            circuitThreshold: 5,
+            circuitTimeout: 60000
+        });
         this.client = null;
         this.webhookLogger = null;
         this.commandHandler = null;
         this.rpcManager = null;
         this.autoPosts = new Map();
         this.isRunning = false;
+        this.setupErrorRecovery();
+    }
+
+    setupErrorRecovery() {
+        this.errorRecovery.setupDiscordStrategies();
+        
+        this.errorRecovery.on('error', ({ error, context, retryCount }) => {
+            console.error(`❌ Error (attempt ${retryCount}):`, error.message);
+        });
+
+        this.errorRecovery.on('retry', ({ error, retryCount, delay, strategy }) => {
+            console.log(`🔄 Retrying in ${delay/1000}s using ${strategy} strategy...`);
+        });
+
+        this.errorRecovery.on('recoverySuccess', ({ retryCount }) => {
+            console.log(`✅ Successfully recovered after ${retryCount} attempts`);
+        });
+
+        this.errorRecovery.on('recoveryFailed', ({ originalError, recoveryError, retryCount }) => {
+            console.error(`❌ Recovery failed after ${retryCount} attempts:`, recoveryError.message);
+        });
+
+        this.errorRecovery.on('circuitBreakerOpen', ({ failures, threshold }) => {
+            console.error(`🚨 Circuit breaker opened after ${failures} failures (threshold: ${threshold})`);
+        });
+    }
+
+    t(key, params = {}) {
+        return this.languageManager.t(key, params);
     }
 
     // Initialize client
     initializeClient(config) {
+        // Set language from config
+        if (config.language) {
+            this.languageManager.setLanguage(config.language);
+        }
+
         this.client = new Client({
             checkUpdate: false,
             partials: ['MESSAGE', 'CHANNEL', 'REACTION']
@@ -28,17 +73,19 @@ class DiscordSelfbot {
             webhookUrl: config.webhookUrl,
             clientId: this.client.user?.id,
             username: config.username,
-            avatarUrl: this.client.user?.avatarURL()
+            avatarUrl: this.client.user?.avatarURL(),
+            languageManager: this.languageManager
         });
 
         this.commandHandler = new CommandHandler(
             this.client, 
             config, 
             this.webhookLogger, 
-            this.autoPosts
+            this.autoPosts,
+            this.languageManager
         );
 
-        this.rpcManager = new RPCManager(this.client, config);
+        this.rpcManager = new RPCManager(this.client, config, this.languageManager);
 
         this.setupEventHandlers();
     }
@@ -52,9 +99,19 @@ class DiscordSelfbot {
         });
 
         // Client events
-        this.client.on('error', (error) => {
-            console.error('❌ Discord Client Error:', error.message);
-            this.webhookLogger?.sendActivityLog("Discord Client Error", error.message);
+        this.client.on('error', async (error) => {
+            console.error(this.t('bot.startup.logged_in', { username: this.client.user?.tag || 'Unknown' }));
+            this.webhookLogger?.sendActivityLog(this.t('bot.startup.logged_in', { username: this.client.user?.tag || 'Unknown' }), error.message);
+            
+            // Try to recover from error
+            try {
+                await this.errorRecovery.handleError(error, { 
+                    client: this.client, 
+                    context: 'discord_client_error' 
+                });
+            } catch (recoveryError) {
+                console.error(this.t('bot.recovery.recovery_failed', { error: recoveryError.message }));
+            }
         });
 
         this.client.on('warn', (info) => {
@@ -63,23 +120,23 @@ class DiscordSelfbot {
         });
 
         this.client.on('disconnect', () => {
-            console.log('🔌 Bot Disconnected');
-            this.webhookLogger?.sendActivityLog("Discord client disconnected");
+            console.log(this.t('bot.startup.disconnected'));
+            this.webhookLogger?.sendActivityLog(this.t('bot.startup.disconnected'));
         });
 
         this.client.on('reconnecting', () => {
-            console.log('🔄 Bot Reconnecting...');
-            this.webhookLogger?.sendActivityLog("Attempting to reconnect to Discord");
+            console.log(this.t('bot.startup.reconnecting'));
+            this.webhookLogger?.sendActivityLog(this.t('bot.startup.reconnecting'));
         });
 
         this.client.on('resume', () => {
-            console.log('✅ Bot Reconnected');
-            this.webhookLogger?.sendActivityLog("Successfully reconnected to Discord");
+            console.log(this.t('bot.startup.reconnected'));
+            this.webhookLogger?.sendActivityLog(this.t('bot.startup.reconnected'));
         });
 
         // Ready event
         this.client.once('ready', () => {
-            console.log(`✅ Logged in as ${this.client.user.tag}`);
+            console.log(this.t('bot.startup.logged_in', { username: this.client.user.tag }));
             this.webhookLogger?.updateConfig({
                 clientId: this.client.user.id,
                 username: this.client.user.username,
@@ -92,18 +149,38 @@ class DiscordSelfbot {
 
     // Setup global error handlers
     setupGlobalErrorHandlers() {
-        process.on('unhandledRejection', (reason, promise) => {
+        process.on('unhandledRejection', async (reason, promise) => {
             console.error('❌ Unhandled Promise Rejection:', reason);
             this.webhookLogger?.sendActivityLog("Unhandled Promise Rejection", reason?.message || String(reason));
+            
+            // Try to recover from unhandled rejection
+            try {
+                await this.errorRecovery.handleError(reason, { 
+                    context: 'unhandled_rejection',
+                    promise 
+                });
+            } catch (recoveryError) {
+                console.error(this.t('bot.recovery.recovery_failed', { error: recoveryError.message }));
+            }
         });
 
-        process.on('uncaughtException', (error) => {
+        process.on('uncaughtException', async (error) => {
             console.error('❌ Uncaught Exception:', error.message);
             this.webhookLogger?.sendActivityLog("Uncaught Exception", error.message);
-            console.log('🔄 Restarting in 5 seconds...');
-            setTimeout(() => {
-                process.exit(1);
-            }, 5000);
+            
+            // Try to recover from uncaught exception
+            try {
+                await this.errorRecovery.handleError(error, { 
+                    context: 'uncaught_exception' 
+                });
+                console.log(this.t('bot.recovery.recovery_success'));
+            } catch (recoveryError) {
+                console.error(this.t('bot.recovery.recovery_failed', { error: recoveryError.message }));
+                console.log(this.t('bot.errors.restarting'));
+                setTimeout(() => {
+                    process.exit(1);
+                }, 5000);
+            }
         });
 
         process.on('warning', (warning) => {
@@ -113,12 +190,12 @@ class DiscordSelfbot {
 
         // Graceful shutdown
         process.on('SIGINT', () => {
-            console.log('\n🛑 Received SIGINT, shutting down gracefully...');
+            console.log(`\n${this.t('bot.errors.shutdown', { signal: 'SIGINT' })}`);
             this.shutdown('SIGINT');
         });
 
         process.on('SIGTERM', () => {
-            console.log('\n🛑 Received SIGTERM, shutting down gracefully...');
+            console.log(`\n${this.t('bot.errors.shutdown', { signal: 'SIGTERM' })}`);
             this.shutdown('SIGTERM');
         });
     }
@@ -143,34 +220,42 @@ class DiscordSelfbot {
                 this.client.destroy();
             }
 
-            console.log('✅ Shutdown complete');
+            console.log(this.t('bot.errors.shutdown_complete'));
             process.exit(0);
         } catch (error) {
-            console.error('❌ Error during shutdown:', error.message);
+            console.error(this.t('bot.errors.shutdown_error', { error: error.message }));
             process.exit(1);
         }
     }
 
     // Start bot with retry logic
     async startBotWithRetry(config, maxRetries = 3) {
-        let retries = 0;
-        
-        while (retries < maxRetries) {
-            try {
-                await this.client.login(config.token);
-                this.isRunning = true;
-                return;
-            } catch (error) {
-                retries++;
-                console.error(`❌ Login attempt ${retries} failed:`, error.message);
-                
-                if (retries < maxRetries) {
-                    const delay = Math.pow(2, retries) * 1000; // Exponential backoff
-                    console.log(`🔄 Retrying in ${delay/1000} seconds...`);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                } else {
-                    throw error;
+        try {
+            await this.errorRecovery.handleError(
+                new Error('Starting bot'),
+                { 
+                    client: this.client, 
+                    token: config.token,
+                    context: 'bot_startup' 
                 }
+            );
+            
+            await this.client.login(config.token);
+            this.isRunning = true;
+            return;
+        } catch (error) {
+            console.error(this.t('bot.errors.login_failed', { 
+                attempt: this.errorRecovery.retryCount, 
+                error: error.message 
+            }));
+            
+            if (this.errorRecovery.retryCount < maxRetries) {
+                const delay = this.errorRecovery.calculateDelay();
+                console.log(this.t('bot.errors.retrying', { delay: delay / 1000 }));
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return await this.startBotWithRetry(config, maxRetries);
+            } else {
+                throw error;
             }
         }
     }
@@ -187,7 +272,7 @@ class DiscordSelfbot {
 
             if (result.action === 'start' && result.config) {
                 const config = result.config;
-                console.log(`\n🚀 Starting bot for ${config.username}...`);
+                console.log(`\n${this.t('bot.startup.starting', { username: config.username })}`);
 
                 // Initialize client
                 this.initializeClient(config);
@@ -197,22 +282,22 @@ class DiscordSelfbot {
 
                 // Keep the process alive
                 this.client.on('disconnect', () => {
-                    console.log('🔄 Bot disconnected, restarting...');
+                    console.log(this.t('bot.recovery.auto_reconnect', { delay: 5 }));
                     setTimeout(() => {
                         this.startBotWithRetry(config);
                     }, 5000);
                 });
 
             } else {
-                console.log('❌ No configuration provided, exiting...');
+                console.log(this.t('bot.errors.no_config'));
                 process.exit(0);
             }
 
         } catch (error) {
-            console.error('❌ Fatal error in main:', error.message);
+            console.error(this.t('bot.errors.fatal', { error: error.message }));
             console.error('Stack:', error.stack);
             this.webhookLogger?.sendActivityLog("Fatal Error", error.message);
-            console.log('🔄 Restarting in 5 seconds...');
+            console.log(this.t('bot.errors.restarting'));
             setTimeout(() => {
                 process.exit(1);
             }, 5000);

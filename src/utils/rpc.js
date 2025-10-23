@@ -1,15 +1,20 @@
 const { RichPresence } = require('discord.js-selfbot-v13');
 
 class RPCManager {
-    constructor(client, config) {
+    constructor(client, config, languageManager) {
         this.client = client;
         this.config = config;
+        this.languageManager = languageManager;
+    }
+
+    t(key, params = {}) {
+        return this.languageManager ? this.languageManager.t(key, params) : key;
     }
 
     // Setup Rich Presence
     setupRichPresence() {
         if (!this.config.enableRPC) {
-            console.log('RPC disabled in configuration');
+            console.log(this.t('rpc.disabled'));
             return;
         }
 
@@ -33,9 +38,9 @@ class RPCManager {
                 status: "dnd" 
             });
 
-            console.log('✅ Rich Presence set successfully');
+            console.log(this.t('rpc.enabled'));
         } catch (error) {
-            console.error('❌ Error setting Rich Presence:', error.message);
+            console.error(this.t('rpc.error', { error: error.message }));
         }
     }
 

@@ -3,6 +3,11 @@ const https = require('https');
 class WebhookLogger {
     constructor(config) {
         this.config = config;
+        this.languageManager = config.languageManager;
+    }
+
+    t(key, params = {}) {
+        return this.languageManager ? this.languageManager.t(key, params) : key;
     }
 
     // Format date time in specific format: Thursday, 23 October 2025 | 06.11.23
@@ -38,33 +43,33 @@ class WebhookLogger {
                     color: null,
                     fields: [
                         {
-                            name: "Client User",
+                            name: this.t('webhook.autopost.fields.client_user'),
                             value: `<@${this.config.clientId}>`,
                             inline: true
                         },
                         {
-                            name: "Channel Post",
+                            name: this.t('webhook.autopost.fields.channel_post'),
                             value: channel ? `<#${channel.id}>` : "N/A"
                         },
                         {
-                            name: "Delay per Message",
+                            name: this.t('webhook.autopost.fields.delay_per_message'),
                             value: delay ? `${delay} minutes` : "N/A"
                         },
                         {
-                            name: "Uptime App",
+                            name: this.t('webhook.autopost.fields.uptime_app'),
                             value: uptime || "N/A"
                         },
                         {
-                            name: "Post Counter",
+                            name: this.t('webhook.autopost.fields.post_counter'),
                             value: postCount ? postCount.toString() : "N/A"
                         },
                         {
-                            name: "Status",
+                            name: this.t('webhook.autopost.fields.status'),
                             value: error ? `❌ Error: ${error}` : "✅ Success"
                         }
                     ],
                     footer: {
-                        text: `𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\nWe Grow Because You Believe.\nHonest From the Start, Always Safe.\n${this.formatDateTime()}`
+                        text: this.t('webhook.autopost.footer', { datetime: this.formatDateTime() })
                     },
                     image: {
                         url: "https://cdn.discordapp.com/attachments/1407966960498642965/1410705503692132503/Proyek_Baru_129_F60CEC6.gif?ex=68f92e61&is=68f7dce1&hm=ca4d13875c6725e7c303fcc377a2f45aab0a3e1e0fe8bf9b950705a20f161c0e&"

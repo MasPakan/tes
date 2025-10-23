@@ -1,8 +1,0 @@
-{
-  "accounts": {},
-  "settings": {
-    "defaultPrefix": "!",
-    "defaultRPC": true,
-    "defaultWebhook": false
-  }
-}

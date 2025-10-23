@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 const inquirer = require('inquirer').default;
+const LanguageManager = require('./language');
 
 class RepositoryUpdateManager {
     constructor() {
@@ -10,11 +11,16 @@ class RepositoryUpdateManager {
         this.branchUrl = `${this.repoUrl}/branches/main`;
         this.archiveUrl = `${this.repoUrl}/zipball/main`;
         this.currentCommitFile = path.join(__dirname, '../../.current-commit');
+        this.languageManager = new LanguageManager();
+    }
+
+    t(key, params = {}) {
+        return this.languageManager.t(key, params);
     }
 
     async checkForUpdates() {
         try {
-            console.log(chalk.blue('🔍 Checking repository for updates...'));
+            console.log(chalk.blue(this.t('update.checking')));
             
             // Get current commit hash
             const currentCommit = this.getCurrentCommit();

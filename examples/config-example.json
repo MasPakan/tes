@@ -1,0 +1,18 @@
+{
+  "accounts": {
+    "YourUsername": {
+      "token": "YOUR_DISCORD_USER_TOKEN_HERE",
+      "webhookUrl": "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN",
+      "prefix": "!",
+      "enableRPC": true,
+      "username": "YourUsername",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "lastUsed": "2024-01-01T00:00:00.000Z"
+    }
+  },
+  "settings": {
+    "defaultPrefix": "!",
+    "defaultRPC": true,
+    "defaultWebhook": false
+  }
+}

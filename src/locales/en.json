@@ -1,0 +1,172 @@
+{
+  "cli": {
+    "welcome": {
+      "title": "Discord Selfbot Automation",
+      "warning": "⚠️  Warning: Using selfbots violates Discord ToS. Use at your own risk!",
+      "ascii_art": "████████████████████████████████████████████████████████████\n████████████████████████████████████████████████████████████\n████████████████████████████████████████████████████████████\n████████████████████████████████████████████████████████████\n████████████████████████████████████████████████████████████\n███████████████████████████████▓████████████████████████████\n██████████████████▓▓█████████▓░░▓███████████████████████████\n████████████████▓▒▓▓▓▓████▓▒▒░ ░░▒▓██████▓░█████████████████\n████████████████░▒▓▒▓▓██████▓▒ ▒▓██████▓▒░ ░▓███████████████\n███████████████▒░▒▒▒▓▓███████▒░▓█████▓▒▒▓▓░▒▓███████████████\n███████████████░▒▓▒▒▓▓███▓▓██▓▒███████▒▒▓█░██▓▓▓████████████\n██████████████▓░▒▓▒▓▓▓██▓▒▒░░░░░▒▒▒▒▓▓▓▓▓█▓██▒▓▓████████████\n██████████████▒░▓▒▒▒▓▓▓██▓██▒░░░     ░░░░░░▒▒▒▒▓▓████████████\n██████████████▒▒▓▒▒▓▓▓▓█▓███▓▒▒░░░░░      ░░▓▓▓▓████████████\n█████████████▓░▒▓▒▓▓▓▓▓▓▓█████▓▓▓▒▒▒░░░▒▓▓▓███▓▓████████████\n█████████████▓▒▓▓▒▒▒▓▓▓▓███████████▓██████████▓▓████████████\n█████████████▒▒▓▒▒░▒▒▒▒▓▓▓▓▓▓▓▓▓▓▓█████████▓▓█▓▒████████████\n█████████████░▒▓▒▓▓▓███████████████████████▓▓█▓▒████████████\n█████████████▒▓█▓██████████████████████████▓██▓▓████████████\n██████████████▓███████▓▓▓████████████████████▓▓▓████████████\n███████████████████▒▓█░▒▒▓█████████████████▓▓▓██████████████\n██████████████████▓░▓▓░░░▓███████████▓██▓███████████████████\n██████████████████▓▓█▓▓▓▓███████████▓▓█▓▒███████████████████\n████████████████████████████████▓▒▒▓▓▓█▓▓███████████████████\n████████████████████████████████████████████████████████████"
+    },
+    "menu": {
+      "main": {
+        "title": "Select an account or action:",
+        "new_account": "➕ New Account",
+        "quit": "❌ Quit",
+        "account": "👤 {username}"
+      },
+      "account": {
+        "title": "Account: {username}\nWhat would you like to do?",
+        "start_bot": "🚀 Start Bot",
+        "new_config": "⚙️ New Config",
+        "remove_account": "🗑️ Remove Account",
+        "back": "⬅️ Back to Main Menu"
+      }
+    },
+    "account_flow": {
+      "title": "🔧 New Account Configuration",
+      "token_prompt": "Enter your Discord user token:",
+      "token_validation": "Please enter a valid Discord user token",
+      "webhook_prompt": "Enable webhook logging?",
+      "webhook_url_prompt": "Enter webhook URL:",
+      "webhook_validation": "Please enter a valid Discord webhook URL",
+      "prefix_prompt": "Enter command prefix:",
+      "prefix_validation": "Prefix must be 1-5 characters long",
+      "rpc_prompt": "Enable Rich Presence (RPC)?",
+      "username_detected": "✅ Detected username: {username}",
+      "username_fallback": "⚠️  Could not fetch username from Discord API, using default",
+      "success": "✅ Account \"{username}\" configured successfully!",
+      "config_saved": "🔧 Configuration saved to ihannsy.json"
+    },
+    "remove_account": {
+      "confirm": "Are you sure you want to remove account \"{username}\"?",
+      "success": "✅ Account \"{username}\" removed successfully!"
+    },
+    "goodbye": "👋 Goodbye!",
+    "updates": {
+      "checking": "🔄 Checking for updates...",
+      "available": "🆕 Update available!",
+      "latest": "✅ You are running the latest version!",
+      "error": "⚠️  Could not check for updates. Continuing..."
+    }
+  },
+  "bot": {
+    "startup": {
+      "starting": "🚀 Starting bot for {username}...",
+      "logged_in": "✅ Logged in as {username}",
+      "disconnected": "🔌 Bot Disconnected",
+      "reconnecting": "🔄 Bot Reconnecting...",
+      "reconnected": "✅ Bot Reconnected"
+    },
+    "errors": {
+      "fatal": "❌ Fatal error in main: {error}",
+      "restarting": "🔄 Restarting in 5 seconds...",
+      "shutdown": "🛑 Received {signal}, shutting down gracefully...",
+      "shutdown_complete": "✅ Shutdown complete",
+      "shutdown_error": "❌ Error during shutdown: {error}",
+      "login_failed": "❌ Login attempt {attempt} failed: {error}",
+      "retrying": "🔄 Retrying in {delay} seconds...",
+      "no_config": "❌ No configuration provided, exiting...",
+      "unhandled_main": "❌ Unhandled main error: {error}"
+    },
+    "recovery": {
+      "auto_reconnect": "🔄 Auto-reconnecting in {delay} seconds...",
+      "max_retries": "❌ Max retry attempts reached. Please check your connection.",
+      "recovery_success": "✅ Successfully recovered from error",
+      "recovery_failed": "❌ Recovery failed: {error}",
+      "backoff_delay": "⏳ Using exponential backoff: {delay} seconds"
+    }
+  },
+  "commands": {
+    "autopost": {
+      "started": "# AUTOPOST STARTED\n> - Index **{index}**\n> - Running in **<#{channel_id}>**'s\n> - Delay **{delay}** minute(s)\n> - Attachment(s) **{count}**",
+      "stopped": "✅ Auto post {index} stopped",
+      "stopped_all": "✅ All auto posts stopped",
+      "not_found": "❌ Auto post {index} not found",
+      "list_empty": "# AUTO POST LIST\n> - **No Auto Post Running**",
+      "list_item": "# AUTO POST LIST\n> - **{index}:** [Ch: <#{channel_id}> - D: {delay} A: {count}]"
+    },
+    "ping": {
+      "title": "# 🏓 PONG!\n> - Bot Latency: {bot_latency}ms\n> - API Latency: {api_latency}ms"
+    },
+    "help": {
+      "title": "# SELFBOT BY iHANNSY",
+      "features": "## 🔍FEATURES:\n> - Auto Send Post\n> - Independent WebHook Log For Auto Posting And System\n> - RPC or Activity Profile\n> - Prefix Command Selfbot (Only Selfbot Can Access)",
+      "commands": "## 🔍Command List\n```css\n!post <index> <message w/wo attachment> <delay(minute)> <channels id>\n!index                - To see auto post running list\n!stop                  - To stop all auto post processes\n!stop <index> - To stop the autopost process according to the index\n!ping                  - To see the latency of the selfbot and API\n```",
+      "contact": "## CONTACT BELOW TO CONTRIBUTE\n[.](https://instagram.com/saya.p4rhan) [.](https://github.com/MasPakan/tes.git) [.](https://discord.gg/8wM2tNhUdB)"
+    },
+    "errors": {
+      "invalid_command": "❌ Invalid command. Use !help for available commands.",
+      "missing_args": "❌ Missing required arguments. Use !help for command usage.",
+      "invalid_index": "❌ Invalid index. Index must be a number.",
+      "invalid_delay": "❌ Invalid delay. Delay must be a number in minutes.",
+      "invalid_channel": "❌ Invalid channel ID.",
+      "channel_not_found": "❌ Channel not found or no access.",
+      "permission_denied": "❌ Permission denied to send messages in this channel.",
+      "rate_limited": "⏳ Rate limited. Please wait before trying again.",
+      "attachment_error": "❌ Error processing attachment: {error}",
+      "webhook_error": "❌ Webhook error: {error}",
+      "rpc_error": "❌ RPC error: {error}"
+    }
+  },
+  "webhook": {
+    "autopost": {
+      "title": "**AUTOPOST** - **PAKAN STORE** - **AD & PROMOTE**",
+      "description": "Webhook Log Autopostin': This feature right here make integration with third-party systems easy, 'cause it hand over the automatic post log payload. That's the real key for checkin' system health and trackin' the history.",
+      "fields": {
+        "client_user": "Client User",
+        "channel_post": "Channel Post",
+        "delay_per_message": "Delay per Message",
+        "uptime_app": "Uptime App",
+        "post_counter": "Post Counter",
+        "status": "Status"
+      },
+      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\\nWe Grow Because You Believe.\\nHonest From the Start, Always Safe.\\n{datetime}",
+      "username": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - {username}"
+    },
+    "activity": {
+      "title": "**AUTOPOST** - **PAKAN STORE** - **AD & PROMOTE**",
+      "description": "Webhook Log Autopostin': This feature right here make integration with third-party systems easy, 'cause it hand over the automatic post log payload. That's the real key for checkin' system health and trackin' the history.",
+      "fields": {
+        "client_user": "Client User",
+        "activity": "Activity"
+      },
+      "footer": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀.\\n{datetime}",
+      "username": "𝙋𝘼𝙆𝘼𝙉 𝙎𝙏𝙊𝙍𝙀 𝘼𝙐𝙏𝙊𝙋𝙊𝙎𝙏 - {username}"
+    },
+    "images": {
+      "main": "https://cdn.discordapp.com/attachments/1407966960498642965/1410705503692132503/Proyek_Baru_129_F60CEC6.gif?ex=68f92e61&is=68f7dce1&hm=ca4d13875c6725e7c303fcc377a2f45aab0a3e1e0fe8bf9b950705a20f161c0e&",
+      "thumbnail": "https://cdn.discordapp.com/attachments/1407966960498642965/1430088592851472435/imqualtz_musicaldown.com_1760959133.jpg?ex=68f92a0a&is=68f7d88a&hm=cd2087dce3b2eea6d76d609cd9384f27d41d77476f5ef05506025c0c135aed5f&"
+    }
+  },
+  "rpc": {
+    "setup": "🎮 Setting up Rich Presence...",
+    "enabled": "✅ Rich Presence enabled",
+    "disabled": "❌ Rich Presence disabled",
+    "error": "❌ Error setting up Rich Presence: {error}"
+  },
+  "update": {
+    "checking": "🔄 Checking for updates...",
+    "available": "🆕 Update available!",
+    "latest": "✅ You are running the latest version!",
+    "error": "❌ Error checking for updates: {error}",
+    "prompt": "Do you want to update to the latest version?",
+    "updating": "🔄 Updating...",
+    "updated": "✅ Update completed successfully!",
+    "update_failed": "❌ Update failed: {error}",
+    "restart_required": "🔄 Please restart the application to apply changes."
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish"
+  }
+}

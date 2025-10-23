@@ -3,7 +3,7 @@ const path = require('path');
 
 class ConfigManager {
     constructor() {
-        this.configFile = path.join(__dirname, '../../ihannsy.json');
+        this.configFile = path.join(__dirname, '../../config/ihannsy.json');
         this.config = this.loadConfig();
     }
 
@@ -25,7 +25,8 @@ class ConfigManager {
             settings: {
                 defaultPrefix: "!",
                 defaultRPC: true,
-                defaultWebhook: false
+                defaultWebhook: false,
+                language: "en"
             }
         };
     }
