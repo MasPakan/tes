@@ -1,0 +1,58 @@
+const { RichPresence } = require('discord.js-selfbot-v13');
+
+class RPCManager {
+    constructor(client, config) {
+        this.client = client;
+        this.config = config;
+    }
+
+    // Setup Rich Presence
+    setupRichPresence() {
+        if (!this.config.enableRPC) {
+            console.log('RPC disabled in configuration');
+            return;
+        }
+
+        try {
+            const rpc = new RichPresence(this.client)
+                .setApplicationId("1396351851410227292")
+                .setType("WATCHING")
+                .setName("Aurhel Alana")
+                .setDetails("You, MyLove, Forever💕")
+                .setState("Aurhelana - iHannsy")
+                .setStartTimestamp(this.client.readyTimestamp)
+                .setAssetsLargeImage("https://cdn.discordapp.com/attachments/1407966960498642965/1407967063657681037/Proyek_Baru_121_B8AF8E8.gif")
+                .setAssetsLargeText("Bininya MasPakan🥰💕")
+                .setAssetsSmallImage("https://cdn.discordapp.com/attachments/1407966960498642965/1407967063984574544/white.gif")
+                .setAssetsSmallText("iHannsy - MasPakan")
+                .addButton("Aurhelana", "https://www.instagram.com/saya.p4rhan")
+                .addButton("iHannsy", "https://www.instagram.com/saya.p4rhan");
+
+            this.client.user.setPresence({ 
+                activities: [rpc], 
+                status: "dnd" 
+            });
+
+            console.log('✅ Rich Presence set successfully');
+        } catch (error) {
+            console.error('❌ Error setting Rich Presence:', error.message);
+        }
+    }
+
+    // Update RPC configuration
+    updateConfig(newConfig) {
+        this.config = { ...this.config, ...newConfig };
+    }
+
+    // Enable/disable RPC
+    setEnabled(enabled) {
+        this.config.enableRPC = enabled;
+        if (enabled) {
+            this.setupRichPresence();
+        } else {
+            this.client.user.setPresence({ activities: [], status: 'online' });
+        }
+    }
+}
+
+module.exports = RPCManager;
