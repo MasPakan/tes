@@ -23,15 +23,15 @@ class RPCManager {
                 .setApplicationId("1396351851410227292")
                 .setType("WATCHING")
                 .setName("Aurhel Alana")
-                .setDetails("You, MyLove, Forever💕")
-                .setState("Aurhelana - iHannsy")
+                .setDetails("Aurhel Alana")
+                .setState("You,My Love,Forever💞")
                 .setStartTimestamp(this.client.readyTimestamp)
-                .setAssetsLargeImage("https://cdn.discordapp.com/attachments/1407966960498642965/1407967063657681037/Proyek_Baru_121_B8AF8E8.gif")
+                .setAssetsLargeImage("1407967063657681037")
                 .setAssetsLargeText("Bininya MasPakan🥰💕")
-                .setAssetsSmallImage("https://cdn.discordapp.com/attachments/1407966960498642965/1407967063984574544/white.gif")
+                .setAssetsSmallImage("1407967063984574544")
                 .setAssetsSmallText("iHannsy - MasPakan")
-                .addButton("Aurhelana", "https://www.instagram.com/saya.p4rhan")
-                .addButton("iHannsy", "https://www.instagram.com/saya.p4rhan");
+                .addButton("Github", "https://www.github.com/namakuhans")
+                .addButton("Instagram", "https://www.instagram.com/saya.p4rhan");
 
             this.client.user.setPresence({ 
                 activities: [rpc], 
